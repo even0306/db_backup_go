@@ -1,0 +1,21 @@
+{
+    "FILTER_METHOD": true,
+    "SAVE_DAY": 7,
+    "MYSQL_EXEC_PATH": "/usr/bin/",
+    "BACKUP_SAVE_PATH": "/root/mysql_backup/db_data/",
+    "BACKUP_LOGS": "/root/mysql_backup/logs/",
+    "USE_KEY": false,
+
+    "DB_HOST": "192.168.1.218",
+    "DB_PORT": 3306,
+    "DB_USER": "root",
+    "DB_PASSWORD": "",
+    "DB_LABEL": "db_1.218",
+
+    "REMOTE_BACKUP": 1,
+    "REMOTE_HOST": "192.168.1.168",
+    "REMOTE_PORT": 22,
+    "REMOTE_USER": "root",
+    "REMOTE_KEY": "/root/.ssh/id_rsa",
+    "REMOTE_PATH": "/backup/"
+}

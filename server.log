@@ -1,0 +1,10 @@
+2022/03/19 21:25:38 test
+INFO: 2022/03/19 21:39:27 main.go:12: test info
+ERROR: 2022/03/19 21:39:27 main.go:13: test error
+WARNING: 2022/03/19 21:39:27 main.go:14: test warning
+INFO:         2022/03/19 21:45:23 main.go:13: test info
+ERROR: 2022/03/19 21:45:23 main.go:14: test error
+WARNING:       2022/03/19 21:45:23 main.go:15: test warning
+INFO:         2022/03/19 21:45:52 main.go:13: test info
+ERROR:       2022/03/19 21:45:52 main.go:14: test error
+WARNING: 2022/03/19 21:45:52 main.go:15: test warning
