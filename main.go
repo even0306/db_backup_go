@@ -7,8 +7,9 @@ import (
 )
 
 func main() {
-	logfile, logs := config.Init()
-	log.SetOutput(logfile)
+	logger := config.Logger{}
+	logFile, logs := logger.SetLogConfig("server.log")
+	log.SetOutput(logFile)
 	err := core.Backup()
 	if err != nil {
 		logs.ErrorLogger.Panicln(err)

@@ -1,15 +1,15 @@
 {
     "FILTER_METHOD": true,
     "SAVE_DAY": 7,
-    "MYSQL_EXEC_PATH": "/usr/bin/",
+    "MYSQL_EXEC_PATH": "D:/Program Files/MySQL/MySQL Workbench 8.0 CE",
     "BACKUP_SAVE_PATH": "/root/mysql_backup/db_data/",
     "BACKUP_LOGS": "/root/mysql_backup/logs/",
     "USE_KEY": false,
 
-    "DB_HOST": "192.168.1.218",
+    "DB_HOST": "192.168.10.10",
     "DB_PORT": "3306",
     "DB_USER": "root",
-    "DB_PASSWORD": "",
+    "DB_PASSWORD": "Zdb0935530117@",
     "DB_LABEL": "db_1.218",
 
     "REMOTE_BACKUP": true,

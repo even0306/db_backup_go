@@ -13,7 +13,7 @@ type Databases struct {
 }
 
 func (d *Databases) Read(f string) ([]string, error) {
-	dbsFile, err := os.OpenFile(f, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	dbsFile, err := os.OpenFile(f, os.O_CREATE|os.O_RDONLY, 0666)
 	if err != nil {
 		return nil, err
 	}
@@ -27,10 +27,9 @@ func (d *Databases) Read(f string) ([]string, error) {
 		if err != nil && content != nil {
 			return nil, err
 		}
-		dbs = append(dbs, string(content))
-
 		if content == nil {
 			return dbs, err
 		}
+		dbs = append(dbs, string(content))
 	}
 }

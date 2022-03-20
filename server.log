@@ -25,3 +25,33 @@ ERROR: 2022/03/20 12:05:27 main.go:15: dial tcp 192.168.10.10:3306: connectex: N
 ERROR: 2022/03/20 12:14:47 main.go:15: invalid DSN: missing the slash separating the database name
 ERROR: 2022/03/20 12:15:58 main.go:15: dial tcp 127.0.0.1:3306: connectex: No connection could be made because the target machine actively refused it.
 ERROR: 2022/03/20 17:43:25 main.go:14: read config.json: Access is denied.
+ERROR: 2022/03/20 20:56:00 main.go:14: read config.json: Access is denied.
+ERROR: 2022/03/20 21:06:37 main.go:15: read config.json: Access is denied.
+ERROR: 2022/03/20 21:18:26 main.go:15: EOF
+ERROR: 2022/03/20 21:42:24 main.go:15: EOF
+ERROR: 2022/03/20 21:45:35 main.go:15: EOF
+ERROR: 2022/03/20 21:57:37 main.go:15: EOF
+INFO: 2022/03/20 22:01:12 backup.go:29: /usr/bin//mysql -h192.168.10.10 -P3306 -uroot -pZdb0935530117@ -Bse 'show databases' | grep -f ./dbs.txt
+ERROR: 2022/03/20 22:01:12 main.go:15: EOF
+INFO: 2022/03/20 22:02:32 backup.go:29: /usr/bin//mysql -h192.168.10.10 -P3306 -uroot -pZdb0935530117@ -Bse 'show databases' | grep -f ./dbs.txt
+INFO: 2022/03/20 22:04:52 backup.go:29: /usr/bin//mysql -h192.168.10.10 -P3306 -uroot -pZdb0935530117@ -Bse 'show databases' | grep -f ./dbs.txt
+ERROR: 2022/03/20 22:04:52 main.go:15: EOF
+INFO: 2022/03/20 22:05:16 backup.go:29: /usr/bin//mysql -h192.168.10.10 -P3306 -uroot -pZdb0935530117@ -Bse 'show databases' | grep -f ./dbs.txt
+ERROR: 2022/03/20 22:05:16 main.go:15: EOF
+INFO: 2022/03/20 22:05:37 backup.go:29: /usr/bin//mysql -h192.168.10.10 -P3306 -uroot -pZdb0935530117@ -Bse 'show databases' | grep -f ./dbs.txt
+INFO: 2022/03/20 22:07:59 backup.go:29: /usr/bin//mysql -h192.168.10.10 -P3306 -uroot -pZdb0935530117@ -Bse 'show databases' | grep -f ./dbs.txt
+ERROR: 2022/03/20 22:07:59 main.go:15: EOF
+ERROR: 2022/03/20 22:09:51 main.go:15: EOF
+ERROR: 2022/03/20 22:10:07 main.go:15: EOF
+INFO: 2022/03/20 22:13:54 backup.go:33: /usr/bin//mysql -h192.168.10.10 -P3306 -uroot -pZdb0935530117@ -Bse 'show databases' | grep -f ./dbs.txt
+ERROR: 2022/03/20 22:25:02 main.go:15: exec: "/usr/bin//mysql": file does not exist
+ERROR: 2022/03/20 22:25:56 main.go:15: exec: "/usr/bin/mysql": file does not exist
+ERROR: 2022/03/20 22:36:55 main.go:15: exit status 1
+INFO: 2022/03/20 23:21:41 backup.go:37: [105 110 102 111 114 109 97 116 105 111 110 95 115 99 104 101 109 97 13 10 109 121 115 113 108 13 10 110 101 120 116 99 108 111 117 100 13 10 112 101 114 102 111 114 109 97 110 99 101 95 115 99 104 101 109 97 13 10 115 121 115 13 10]
+ERROR: 2022/03/20 23:21:45 main.go:15: EOF
+INFO: 2022/03/20 23:25:05 backup.go:36: information_schema
+mysql
+nextcloud
+performance_schema
+sys
+

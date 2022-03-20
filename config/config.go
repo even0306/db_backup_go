@@ -6,12 +6,12 @@ import (
 	"os"
 )
 
-type Readconfig interface {
-	Read(f string) (*Config, error)
+type ReadConfig interface {
+	Read(f string) (*ConfigFile, error)
 }
 
 //基础配置
-type Config struct {
+type ConfigFile struct {
 	FILTER_METHOD    bool   `json:"FILTER_METHOD"`    //正向匹配 true，反向匹配 false
 	REMOTE_BACKUP    bool   `json:"REMOTE_BACKUP"`    //开启向异机备份 true，关闭向异机备份 false
 	USE_KEY          bool   `json:"USE_KEY"`          //使用证书连接异机 true，使用密码连接异机 false
@@ -33,8 +33,8 @@ type Config struct {
 	REMOTE_PATH string `json:"REMOTE_PATH"` //备份在异机保存的路径
 }
 
-func (c *Config) Read(f string) (*Config, error) {
-	jsonFile, err := os.OpenFile(f, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+func (c *ConfigFile) Read(f string) (*ConfigFile, error) {
+	jsonFile, err := os.OpenFile(f, os.O_CREATE|os.O_RDONLY, 0666)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (c *Config) Read(f string) (*Config, error) {
 		return nil, err
 	}
 
-	var config Config
+	var config ConfigFile
 	json.Unmarshal([]byte(byteValue), &config)
 	return &config, err
 }
