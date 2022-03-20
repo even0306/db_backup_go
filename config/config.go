@@ -3,12 +3,15 @@ package config
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
+type Readconfig interface {
+	Read(f string) (*Config, error)
+}
+
 //基础配置
-type config struct {
+type Config struct {
 	FILTER_METHOD    bool   `json:"FILTER_METHOD"`    //正向匹配 true，反向匹配 false
 	REMOTE_BACKUP    bool   `json:"REMOTE_BACKUP"`    //开启向异机备份 true，关闭向异机备份 false
 	USE_KEY          bool   `json:"USE_KEY"`          //使用证书连接异机 true，使用密码连接异机 false
@@ -16,45 +19,33 @@ type config struct {
 	MYSQL_EXEC_PATH  string `json:"MYSQL_EXEC_PATH"`  //mysql执行文件所在目录
 	BACKUP_SAVE_PATH string `json:"BACKUP_SAVE_PATH"` //备份在本地保存的路径
 	BACKUP_LOGS      string `json:"BACKUP_LOGS"`      //日志在本地的路径
-}
 
-//本地数据库连接信息
-type localhostInfo struct {
 	DB_HOST     string `json:"DB_HOST"`
-	DB_PORT     int    `json:"DB_PORT"`
+	DB_PORT     string `json:"DB_PORT"`
 	DB_USER     string `json:"DB_USER"`
 	DB_PASSWORD string `json:"DB_PASSWORD"`
 	DB_LABEL    string `json:"DB_LABEL"` //标签，用于标记该备份来自哪个数据库
-}
 
-//备份到的异机连接信息
-type remotehostInfo struct {
 	REMOTE_HOST string `json:"REMOTE_HOST"`
-	REMOTE_PORT int    `json:"REMOTE_PORT"`
+	REMOTE_PORT string `json:"REMOTE_PORT"`
 	REMOTE_USER string `json:"REMOTE_USER"`
 	REMOTE_KEY  string `json:"REMOTE_KEY"`
 	REMOTE_PATH string `json:"REMOTE_PATH"` //备份在异机保存的路径
 }
 
-func ReadConfig() (*config, *localhostInfo, *remotehostInfo) {
-	file, logs := Init()
-	log.SetOutput(file)
-	jsonFile, err := os.Open("config.json")
+func (c *Config) Read(f string) (*Config, error) {
+	jsonFile, err := os.OpenFile(f, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		logs.ErrorLogger.Panicln(err)
+		return nil, err
 	}
 	defer jsonFile.Close()
 
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
-		logs.ErrorLogger.Panicln(err)
+		return nil, err
 	}
 
-	var config config
-	var localhostInfo localhostInfo
-	var remotehostInfo remotehostInfo
+	var config Config
 	json.Unmarshal([]byte(byteValue), &config)
-	json.Unmarshal([]byte(byteValue), &localhostInfo)
-	json.Unmarshal([]byte(byteValue), &remotehostInfo)
-	return &config, &localhostInfo, &remotehostInfo
+	return &config, err
 }

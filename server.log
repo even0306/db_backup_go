@@ -8,3 +8,20 @@ WARNING:       2022/03/19 21:45:23 main.go:15: test warning
 INFO:         2022/03/19 21:45:52 main.go:13: test info
 ERROR:       2022/03/19 21:45:52 main.go:14: test error
 WARNING: 2022/03/19 21:45:52 main.go:15: test warning
+ERROR: 2022/03/20 09:54:29 dbs.go:23: EOF
+ERROR: 2022/03/20 09:55:57 dbs.go:23: EOF
+ERROR: 2022/03/20 09:58:45 dbs.go:23: EOF
+WARNING: 2022/03/20 10:02:46 dbs.go:24: EOF
+WARNING: 2022/03/20 10:02:52 dbs.go:24: EOF
+WARNING: 2022/03/20 10:02:55 dbs.go:24: EOF
+WARNING: 2022/03/20 10:02:57 dbs.go:24: EOF
+WARNING: 2022/03/20 10:03:51 dbs.go:24: EOF
+WARNING: 2022/03/20 10:04:13 dbs.go:24: EOF
+WARNING: 2022/03/20 10:04:29 dbs.go:24: EOF
+WARNING: 2022/03/20 10:04:39 dbs.go:24: EOF
+ERROR: 2022/03/20 11:26:02 main.go:15: sql: unknown driver "mysql" (forgotten import?)
+ERROR: 2022/03/20 11:31:13 main.go:15: dial tcp 192.168.10.10:3306: connectex: No connection could be made because the target machine actively refused it.
+ERROR: 2022/03/20 12:05:27 main.go:15: dial tcp 192.168.10.10:3306: connectex: No connection could be made because the target machine actively refused it.
+ERROR: 2022/03/20 12:14:47 main.go:15: invalid DSN: missing the slash separating the database name
+ERROR: 2022/03/20 12:15:58 main.go:15: dial tcp 127.0.0.1:3306: connectex: No connection could be made because the target machine actively refused it.
+ERROR: 2022/03/20 17:43:25 main.go:14: read config.json: Access is denied.

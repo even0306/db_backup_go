@@ -1,13 +1,16 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"mysql_backup_go/config"
+	"mysql_backup_go/core"
 )
 
 func main() {
-	a, b, c := config.ReadConfig()
-	fmt.Println(a.BACKUP_SAVE_PATH)
-	fmt.Println(b.DB_HOST)
-	fmt.Println(c.REMOTE_PATH)
+	logfile, logs := config.Init()
+	log.SetOutput(logfile)
+	err := core.Backup()
+	if err != nil {
+		logs.ErrorLogger.Panicln(err)
+	}
 }

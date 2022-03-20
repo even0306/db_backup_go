@@ -7,14 +7,14 @@
     "USE_KEY": false,
 
     "DB_HOST": "192.168.1.218",
-    "DB_PORT": 3306,
+    "DB_PORT": "3306",
     "DB_USER": "root",
     "DB_PASSWORD": "",
     "DB_LABEL": "db_1.218",
 
-    "REMOTE_BACKUP": 1,
+    "REMOTE_BACKUP": true,
     "REMOTE_HOST": "192.168.1.168",
-    "REMOTE_PORT": 22,
+    "REMOTE_PORT": "22",
     "REMOTE_USER": "root",
     "REMOTE_KEY": "/root/.ssh/id_rsa",
     "REMOTE_PATH": "/backup/"

@@ -1,24 +1,36 @@
 package config
 
 import (
-	"fmt"
-	"io/ioutil"
-	"log"
+	"bufio"
 	"os"
 )
 
-type dbs interface{}
+type readDbs interface {
+	Read(f string) ([]string, error)
+}
 
-func ReadDbs() {
-	file, logs := Init()
-	log.SetOutput(file)
-	dbsFile, err := os.Open("dbs.txt")
+type Databases struct {
+}
+
+func (d *Databases) Read(f string) ([]string, error) {
+	dbsFile, err := os.OpenFile(f, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		logs.ErrorLogger.Panicln(err)
+		return nil, err
 	}
-	byteValue, err := ioutil.ReadAll(dbsFile)
-	if err != nil {
-		logs.ErrorLogger.Panicln(err)
+	defer dbsFile.Close()
+
+	var dbs = []string{}
+	line := bufio.NewReader(dbsFile)
+	for {
+		content, _, err := line.ReadLine()
+
+		if err != nil && content != nil {
+			return nil, err
+		}
+		dbs = append(dbs, string(content))
+
+		if content == nil {
+			return dbs, err
+		}
 	}
-	fmt.Print(byteValue)
 }
