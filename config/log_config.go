@@ -6,7 +6,7 @@ import (
 )
 
 type setLogConfig interface {
-	SetLogConfig(f string) (*os.File, Logger)
+	SetLogConfig(f string) (*os.File, *Logger)
 }
 
 type Logger struct {
@@ -15,7 +15,7 @@ type Logger struct {
 	ErrorLogger   *log.Logger
 }
 
-func (l *Logger) SetLogConfig(f string) (*os.File, Logger) {
+func (l *Logger) SetLogConfig(f string) (*os.File, *Logger) {
 	file, err := os.OpenFile(f, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Fatal(err)
@@ -25,5 +25,5 @@ func (l *Logger) SetLogConfig(f string) (*os.File, Logger) {
 	l.WarningLogger = log.New(file, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 	l.ErrorLogger = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
 
-	return file, *l
+	return file, l
 }

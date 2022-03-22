@@ -1,9 +1,11 @@
 package core
 
 import (
-	"io"
+	"fmt"
+	"log"
 	"mysql_backup_go/config"
 	"os/exec"
+	"time"
 )
 
 type fileName struct {
@@ -12,17 +14,14 @@ type fileName struct {
 	date           string
 }
 
-func Backup() error {
+func Backup() {
+	l := config.Logger{}
+	logfile, logs := l.SetLogConfig("server.log")
+	log.SetOutput(logfile)
 	conf := config.ConfigFile{}
-	confData, err := conf.Read("config.json")
-	if err != nil {
-		return err
-	}
+	confData := conf.Read("config.json")
 	dbs := config.Databases{}
-	dbsData, err := dbs.Read("dbs.txt")
-	if err != nil && err != io.EOF {
-		return err
-	}
+	dbsData := dbs.Read("dbs.txt")
 	for _, v := range dbsData {
 		if v == "all" {
 			dbsData = nil
@@ -33,7 +32,7 @@ func Backup() error {
 	cmd := exec.Command(confData.MYSQL_EXEC_PATH+"/mysql", "-h", confData.DB_HOST, "-P", string(confData.DB_PORT), "-u", confData.DB_USER, "-p"+confData.DB_PASSWORD, "-Bse", `show databases`)
 	out, err := cmd.Output()
 	if err != nil {
-		return err
+		logs.InfoLogger.Printf("stderr: %v", err)
 	}
 
 	var preDBS []string
@@ -43,7 +42,7 @@ func Backup() error {
 			for _, w := range dbsData {
 				if w == "all" {
 					preDBS = nil
-					preDBS = append(preDBS, "--all-databases")
+					preDBS = append(preDBS, "all")
 					b = 1
 					break
 				} else if string(v) == w {
@@ -59,7 +58,7 @@ func Backup() error {
 			for _, w := range dbsData {
 				if w == "all" {
 					preDBS = nil
-					preDBS = append(preDBS, "--all-databases")
+					preDBS = append(preDBS, "all")
 					b = 1
 					break
 				} else if string(v) != w {
@@ -72,9 +71,27 @@ func Backup() error {
 		}
 	}
 
+	var fileName fileName
 	for _, v := range preDBS {
+		fileName.date = time.Now().Format("2020-01-02 15:04:02")
+		fileName.filenameNoDate = v + "_" + confData.DB_LABEL
+		fileName.filename = fileName.filenameNoDate + "_" + fileName.date
+		fmt.Printf("do backup %v", v)
+		if v == "all" {
+			cmd := exec.Command(confData.MYSQL_EXEC_PATH+"/mysqldump", "-h", confData.DB_HOST, "-P", string(confData.DB_PORT), "-u", confData.DB_USER, "-p"+confData.DB_PASSWORD, "-E", "-R", "--triggers", "--all-databases")
+			out, err = cmd.Output()
+		} else {
+			cmd := exec.Command(confData.MYSQL_EXEC_PATH+"/mysqldump", "-h", confData.DB_HOST, "-P", string(confData.DB_PORT), "-u", confData.DB_USER, "-p"+confData.DB_PASSWORD, "-E", "-R", "--triggers", v)
+			out, err = cmd.Output()
+		}
+		if err != nil {
+			logs.ErrorLogger.Panicf(v+"数据库配置失败：%v", err)
+		}
 
+		saveFile := File{}
+		saveFile.SaveFile(out, confData.BACKUP_SAVE_PATH, fileName.filename)
+		if err != nil {
+			logs.ErrorLogger.Panicf("文件保存失败：%v", err)
+		}
 	}
-
-	return err
 }

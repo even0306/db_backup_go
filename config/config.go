@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -33,19 +34,25 @@ type ConfigFile struct {
 	REMOTE_PATH string `json:"REMOTE_PATH"` //备份在异机保存的路径
 }
 
-func (c *ConfigFile) Read(f string) (*ConfigFile, error) {
+func (c *ConfigFile) Read(f string) *ConfigFile {
+	l := Logger{}
+	logfile, logs := l.SetLogConfig("server.log")
+	log.SetOutput(logfile)
 	jsonFile, err := os.OpenFile(f, os.O_CREATE|os.O_RDONLY, 0666)
 	if err != nil {
-		return nil, err
+		logs.ErrorLogger.Panicf("创建日志文件失败：%v", err)
 	}
 	defer jsonFile.Close()
 
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
-		return nil, err
+		logs.ErrorLogger.Panicf("读取配置文件失败：%v", err)
 	}
 
 	var config ConfigFile
-	json.Unmarshal([]byte(byteValue), &config)
-	return &config, err
+	err = json.Unmarshal([]byte(byteValue), &config)
+	if err != nil {
+		logs.ErrorLogger.Panicf("配置文件内容转进程序失败：%v", err)
+	}
+	return &config
 }
