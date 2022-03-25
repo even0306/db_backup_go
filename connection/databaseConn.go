@@ -6,8 +6,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type connSocket interface {
-	ConnSocket(db string, dbinfo string) (*sql.DB, error)
+type database interface {
+	Connect(db string, dbinfo string) (*sql.DB, error)
 }
 
 type Mysql struct {

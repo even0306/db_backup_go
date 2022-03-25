@@ -15,6 +15,7 @@ type Logger struct {
 	ErrorLogger   *log.Logger
 }
 
+//设置日志基础格式
 func (l *Logger) SetLogConfig(f string) (*os.File, *Logger) {
 	file, err := os.OpenFile(f, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {

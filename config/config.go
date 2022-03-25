@@ -34,21 +34,27 @@ type ConfigFile struct {
 	REMOTE_PATH string `json:"REMOTE_PATH"` //备份在异机保存的路径
 }
 
+//读取配置文件
 func (c *ConfigFile) Read(f string) *ConfigFile {
+	//日志初始化
 	l := Logger{}
 	logfile, logs := l.SetLogConfig("server.log")
 	log.SetOutput(logfile)
+
+	//打开文件
 	jsonFile, err := os.OpenFile(f, os.O_CREATE|os.O_RDONLY, 0666)
 	if err != nil {
 		logs.ErrorLogger.Panicf("创建日志文件失败：%v", err)
 	}
 	defer jsonFile.Close()
 
+	//读取配置文件
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
 		logs.ErrorLogger.Panicf("读取配置文件失败：%v", err)
 	}
 
+	//将配置文件内容传入结构体
 	var config ConfigFile
 	err = json.Unmarshal([]byte(byteValue), &config)
 	if err != nil {
