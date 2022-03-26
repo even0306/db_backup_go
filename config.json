@@ -1,21 +1,20 @@
 {
     "FILTER_METHOD": true,
     "SAVE_DAY": 7,
-    "MYSQL_EXEC_PATH": "D:/Program Files/MySQL/MySQL Workbench 8.0 CE",
-    "BACKUP_SAVE_PATH": "/root/mysql_backup/db_data/",
-    "BACKUP_LOGS": "/root/mysql_backup/logs/",
-    "USE_KEY": false,
+    "MYSQL_EXEC_PATH": "/usr/bin/",
+    "BACKUP_SAVE_PATH": "/home/even/mysql_backup/",
+    "BACKUP_LOGS": "/home/even/mysql_backup/logs/",
 
-    "DB_HOST": "192.168.10.10",
+    "DB_HOST": "127.0.0.1",
     "DB_PORT": "3306",
     "DB_USER": "root",
-    "DB_PASSWORD": "Zdb0935530117@",
-    "DB_LABEL": "db_1.218",
+    "DB_PASSWORD": "123456",
+    "DB_LABEL": "db_test",
 
-    "REMOTE_BACKUP": true,
+    "REMOTE_BACKUP": false,
     "REMOTE_HOST": "192.168.1.168",
     "REMOTE_PORT": "22",
     "REMOTE_USER": "root",
-    "REMOTE_KEY": "/root/.ssh/id_rsa",
+    "REMOTE_PASSWORD": "",
     "REMOTE_PATH": "/backup/"
 }

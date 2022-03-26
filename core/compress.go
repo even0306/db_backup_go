@@ -3,20 +3,42 @@ package core
 import (
 	"bytes"
 	"compress/gzip"
+	"fmt"
+	"log"
 )
 
 type compress interface {
-	CompressFile(f []byte) error
+	CompressFile() (*bytes.Buffer, error)
 }
 
-type Gz struct {
-	input bytes.Buffer
+type Gzip struct {
+	input    bytes.Buffer
+	data     *[]byte
+	filename *string
+}
+
+func NewCompress(f *[]byte, filename *string) *Gzip {
+	return &Gzip{
+		data:     f,
+		filename: filename,
+	}
 }
 
 //保存备份的文件并压缩
-func (file *Gz) CompressFile(f []byte, filepath string, filename string) {
+func (file *Gzip) CompressFile() (*bytes.Buffer, error) {
 	//压缩文件
-	gf := gzip.NewWriter(&file.input)
-	gf.Write(f)
-	gf.Close()
+	gwf := gzip.NewWriter(&file.input)
+	gwf.Name = *file.filename
+	_, err := gwf.Write(*file.data)
+	if err != nil {
+		return nil, fmt.Errorf("压缩数据失败：%v", err)
+	}
+	defer func() {
+		err := gwf.Close()
+		if err != nil {
+			log.Panicf("压缩数据写入缓存关闭失败：%v", err)
+		}
+	}()
+
+	return &file.input, nil
 }

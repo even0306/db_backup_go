@@ -1,11 +1,14 @@
 package main
 
 import (
-	"mysql_backup_go/core"
+	"log"
+	"mysql_backup_go/controller"
 )
 
 func main() {
-
-	core.Backup()
-
+	c := controller.NewController()
+	err := c.Controller()
+	if err != nil {
+		log.Panic(err)
+	}
 }

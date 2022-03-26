@@ -1,31 +1,32 @@
 package utils
 
 import (
-	"log"
-	"mysql_backup_go/config"
+	"fmt"
 	"os/exec"
 )
 
 type check interface {
-	CheckOS() string
+	CheckOS() (string, error)
 }
 
-type Type struct {
-	osType map[string]string
+type OSType struct {
+	checkFunc map[string]string
 }
 
-func (t *Type) CheckOS() string {
-	l := config.Logger{}
-	logfile, logs := l.SetLogConfig("server.log")
-	log.SetOutput(logfile)
-	t.osType = map[string]string{"linux": "uname", "windows": "systeminfo"}
-	for k, v := range t.osType {
+func NewUtils() *OSType {
+	return &OSType{
+		checkFunc: map[string]string{},
+	}
+}
+
+func (t *OSType) CheckOS() (string, error) {
+	t.checkFunc = map[string]string{"linux": "uname", "windows": "systeminfo"}
+	for k, v := range t.checkFunc {
 		cmd := exec.Command(v)
 		err := cmd.Start()
 		if err == nil {
-			return k
+			return k, nil
 		}
 	}
-	logs.ErrorLogger.Println("未知远端系统，发送失败")
-	return ""
+	return "", fmt.Errorf("未知远端系统，发送失败")
 }
