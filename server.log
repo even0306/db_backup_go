@@ -56,3 +56,6 @@ performance_schema
 sys
 
 ERROR: 2022/03/26 17:23:40 backup.go:127: 创建备份文件失败：open /home/even/mysql_backup/mysql_db_test_26260-03-26 17:21:26: permission denied
+2022/03/27 22:14:35 stderr: exit status 1
+2022/03/27 22:14:42 stderr: exit status 1
+2022/03/27 22:14:58 stderr: exit status 1
