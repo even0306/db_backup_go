@@ -8,8 +8,9 @@ import (
 )
 
 func main() {
-	for _, args := range os.Args[1:] {
-		if args == "" {
+	version := "0.9.1"
+	for _, args := range os.Args {
+		if len(args) < 2 {
 			logfile, err := os.OpenFile("server.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
 			log.SetOutput(logfile)
 			if err != nil {
@@ -22,7 +23,7 @@ func main() {
 			}
 		} else {
 			if args == "-v" || args == "--version" {
-				fmt.Printf("mysql_backup\nversion:0.9\n")
+				fmt.Printf("mysql_backup\n" + version + "\n")
 			} else {
 				fmt.Printf("参数错误，可以使用以下参数：\n[-v|--version]\n")
 			}
