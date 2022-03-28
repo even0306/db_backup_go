@@ -1,0 +1,38 @@
+2022/03/28 22:37:28 本地备份路径：/home/even/mysql_backup/mysql_db_test_2022-03-28.sql
+远程备份路径(如开启远程备份)：/backup/mysql_db_test_2022-03-28.sql
+2022/03/28 22:38:38 0xc000012950备份完成
+2022/03/28 22:38:48 备份结束
+本地备份路径：/home/even/mysql_backup/mysql_db_test_2022-03-28.sql
+远程备份路径(如开启远程备份)：/backup/mysql_db_test_2022-03-28.sql
+2022/03/28 22:39:36 0xc0000100b0备份完成
+2022/03/28 22:39:46 备份结束
+本地备份路径：/home/even/mysql_backup/mysql_db_test_2022-03-28.sql
+远程备份路径(如开启远程备份)：/backup/mysql_db_test_2022-03-28.sql
+2022/03/28 22:42:47 
+备份开始
+2022/03/28 22:42:47 0xc0000100b8备份完成
+2022/03/28 22:42:57 备份结束
+本地备份路径：/home/even/mysql_backup/mysql_db_test_2022-03-28.sql
+远程备份路径(如开启远程备份)：/backup/mysql_db_test_2022-03-28.sql
+2022/03/28 22:43:39 备份开始
+2022/03/28 22:43:40 0xc0000100b8备份完成
+2022/03/28 22:43:50 备份结束
+本地备份路径：/home/even/mysql_backup/mysql_db_test_2022-03-28.sql
+远程备份路径(如开启远程备份)：/backup/mysql_db_test_2022-03-28.sql
+2022/03/28 22:43:56 备份开始
+2022/03/28 22:43:57 0xc0000100b8备份完成
+2022/03/28 22:44:07 备份结束
+本地备份路径：/home/even/mysql_backup/mysql_db_test_2022-03-28.sql
+远程备份路径(如开启远程备份)：/backup/mysql_db_test_2022-03-28.sql
+2022/03/28 22:46:59 备份开始
+2022/03/28 22:46:59 正在备份：mysql
+2022/03/28 22:47:00 mysql备份完成
+2022/03/28 22:47:10 备份结束
+本地备份路径：/home/even/mysql_backup/mysql_db_test_2022-03-28.sql
+远程备份路径(如开启远程备份)：/backup/mysql_db_test_2022-03-28.sql
+2022/03/28 22:47:33 备份开始
+2022/03/28 22:47:33 正在备份：all
+2022/03/28 22:47:33 all备份完成
+2022/03/28 22:47:43 备份结束
+本地备份路径：/home/even/mysql_backup/all_db_test_2022-03-28.sql
+远程备份路径(如开启远程备份)：/backup/all_db_test_2022-03-28.sql

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"mysql_backup_go/common"
 	"os"
 	"os/exec"
@@ -13,22 +14,20 @@ import (
 )
 
 type Backup interface {
-	Run() (string, error)
+	Run(db *string) (string, error)
 }
 
 type backupInfo struct {
 	conf *common.ConfigFile
-	db   *string
 
 	fileNameNoDate string
 	fileName       string
 	date           string
 }
 
-func NewBackuper(conf *common.ConfigFile, db *string) *backupInfo {
+func NewBackuper(conf *common.ConfigFile) *backupInfo {
 	return &backupInfo{
 		conf:           conf,
-		db:             db,
 		fileNameNoDate: "",
 		fileName:       "",
 		date:           "",
@@ -36,22 +35,22 @@ func NewBackuper(conf *common.ConfigFile, db *string) *backupInfo {
 }
 
 //循环备份每个数据库，返回本地备份位置，异机备份位置，和err
-func (b *backupInfo) Run() (string, error) {
+func (b *backupInfo) Run(db *string) (string, error) {
 	b.date = time.Now().Format("2006-01-02")
-	b.fileNameNoDate = *b.db + "_" + b.conf.DB_LABEL
+	b.fileNameNoDate = *db + "_" + b.conf.DB_LABEL
 	b.fileName = b.fileNameNoDate + "_" + b.date + ".sql"
-	fmt.Printf("do backup %v", b.db)
+	log.Printf("正在备份：%v", *db)
 	var out []byte
 	var err error
-	if *b.db == "all" {
+	if *db == "all" {
 		cmd := exec.Command(b.conf.MYSQL_EXEC_PATH+"/mysqldump", "-h"+b.conf.DB_HOST, "-P"+string(b.conf.DB_PORT), "-u"+b.conf.DB_USER, "-p"+b.conf.DB_PASSWORD, "-E", "-R", "--triggers", "--all-databases")
 		out, err = cmd.Output()
 	} else {
-		cmd := exec.Command(b.conf.MYSQL_EXEC_PATH+"/mysqldump", "-h"+b.conf.DB_HOST, "-P"+string(b.conf.DB_PORT), "-u"+b.conf.DB_USER, "-p"+b.conf.DB_PASSWORD, "-E", "-R", "--triggers", *b.db)
+		cmd := exec.Command(b.conf.MYSQL_EXEC_PATH+"/mysqldump", "-h"+b.conf.DB_HOST, "-P"+string(b.conf.DB_PORT), "-u"+b.conf.DB_USER, "-p"+b.conf.DB_PASSWORD, "-E", "-R", "--triggers", *db)
 		out, err = cmd.Output()
 	}
 	if err != nil {
-		return "", fmt.Errorf(*b.db+"数据库配置失败：%w", err)
+		return "", fmt.Errorf(*db+"数据库配置失败：%w", err)
 	}
 
 	//压缩并保存备份文件
@@ -61,7 +60,11 @@ func (b *backupInfo) Run() (string, error) {
 		return "", err
 	}
 
-	f, err := os.Create(b.conf.BACKUP_SAVE_PATH + "/" + *b.db + "/" + b.fileName + ".gz")
+	err = os.MkdirAll(b.conf.BACKUP_SAVE_PATH+"/"+*db, 0777)
+	if err != nil {
+		return "", fmt.Errorf("创建备份文件路径失败：%w", err)
+	}
+	f, err := os.Create(b.conf.BACKUP_SAVE_PATH + "/" + *db + "/" + b.fileName + ".gz")
 	if err != nil {
 		return "", fmt.Errorf("创建备份文件失败：%w", err)
 	}

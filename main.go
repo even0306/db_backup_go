@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
-	version := "0.9.1"
+	version := "0.9.2"
 	for _, args := range os.Args {
-		if len(args) < 2 {
+		if len(os.Args) < 2 {
 			logfile, err := os.OpenFile("server.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
 			log.SetOutput(logfile)
 			if err != nil {

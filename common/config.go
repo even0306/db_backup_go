@@ -20,7 +20,6 @@ type ConfigFile struct {
 	SAVE_DAY         int    `json:"SAVE_DAY"`         //保存备份的天数
 	MYSQL_EXEC_PATH  string `json:"MYSQL_EXEC_PATH"`  //mysql执行文件所在目录
 	BACKUP_SAVE_PATH string `json:"BACKUP_SAVE_PATH"` //备份在本地保存的路径
-	BACKUP_LOGS      string `json:"BACKUP_LOGS"`      //日志在本地的路径
 
 	DB_HOST     string `json:"DB_HOST"`
 	DB_PORT     string `json:"DB_PORT"`
@@ -43,7 +42,6 @@ func NewConfig(f string) *ConfigFile {
 		SAVE_DAY:         7,
 		MYSQL_EXEC_PATH:  "/usr/bin",
 		BACKUP_SAVE_PATH: "",
-		BACKUP_LOGS:      "/var/log/",
 		DB_HOST:          "127.0.0.1",
 		DB_PORT:          "3306",
 		DB_USER:          "root",
