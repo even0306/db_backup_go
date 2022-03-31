@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	version := "0.9.2"
+	version := "0.9.3"
 	printVersion := flag.Bool("version", false, "[--version]")
 	flag.Parse()
 	if *printVersion {
