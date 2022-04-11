@@ -88,7 +88,7 @@ func (fi fileInfo) Controller() error {
 	rmFile.ClearRemote(confData.REMOTE_PATH)
 
 	for _, v := range fi.fileNameList {
-		log.Printf("备份结束\n本地备份路径：%v\n远程备份路径(如开启远程备份)：%v", confData.BACKUP_SAVE_PATH+v, confData.REMOTE_PATH+v)
+		log.Printf("备份结束\n本地备份路径：%v.gz\n远程备份路径(如开启远程备份)：%v.gz", confData.BACKUP_SAVE_PATH+v, confData.REMOTE_PATH+v)
 	}
 	return nil
 }
