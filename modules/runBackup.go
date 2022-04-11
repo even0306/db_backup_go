@@ -1,13 +1,12 @@
 package modules
 
 import (
+	"db_backup_go/common"
 	"errors"
 	"fmt"
 	"io"
 	"log"
-	"mysql_backup_go/common"
 	"os"
-	"os/exec"
 	"time"
 
 	"github.com/pkg/sftp"
@@ -40,21 +39,30 @@ func (b *backupInfo) Run(db *string) (string, error) {
 	b.fileNameNoDate = *db + "_" + b.conf.DB_LABEL
 	b.fileName = b.fileNameNoDate + "_" + b.date + ".sql"
 	log.Printf("正在备份：%v", *db)
-	var out []byte
+
+	var out *[]byte
 	var err error
-	if *db == "all" {
-		cmd := exec.Command(b.conf.MYSQL_EXEC_PATH+"/mysqldump", "-h"+b.conf.DB_HOST, "-P"+string(b.conf.DB_PORT), "-u"+b.conf.DB_USER, "-p"+b.conf.DB_PASSWORD, "-E", "-R", "--triggers", "--all-databases")
-		out, err = cmd.Output()
-	} else {
-		cmd := exec.Command(b.conf.MYSQL_EXEC_PATH+"/mysqldump", "-h"+b.conf.DB_HOST, "-P"+string(b.conf.DB_PORT), "-u"+b.conf.DB_USER, "-p"+b.conf.DB_PASSWORD, "-E", "-R", "--triggers", *db)
-		out, err = cmd.Output()
+	dbu := NewDBDumpFunc(b.conf.MYSQL_EXEC_PATH)
+	dbi := DBInfo{
+		DBHost:     b.conf.DB_HOST,
+		DBPort:     b.conf.DB_PORT,
+		DBUser:     b.conf.DB_USER,
+		DBPassword: b.conf.DB_PASSWORD,
 	}
-	if err != nil {
-		return "", fmt.Errorf(*db+"数据库配置失败：%w", err)
+	if *db == "all" {
+		out, err = dbu.MysqlDumpAll(dbi)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		out, err = dbu.MysqlDump(dbi, db)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	//压缩并保存备份文件
-	saveFile := NewCompress(&out, &b.fileName)
+	saveFile := NewCompress(out, &b.fileName)
 	buff, err := saveFile.CompressFile()
 	if err != nil {
 		return "", err

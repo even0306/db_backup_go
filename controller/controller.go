@@ -1,9 +1,9 @@
 package controller
 
 import (
+	"db_backup_go/common"
+	"db_backup_go/modules"
 	"log"
-	"mysql_backup_go/common"
-	"mysql_backup_go/modules"
 	"sync"
 )
 
@@ -76,13 +76,14 @@ func (fi fileInfo) Controller() error {
 	wg.Wait()
 
 	//按天保留最新7份备份，删除之前的备份
-	var remoteHost = []string{
-		confData.REMOTE_HOST,
-		confData.REMOTE_PORT,
-		confData.REMOTE_USER,
-		confData.REMOTE_PASSWORD,
+	rh := modules.ConnInfo{
+		Host:     confData.REMOTE_HOST,
+		Port:     confData.REMOTE_PORT,
+		User:     confData.REMOTE_USER,
+		Password: confData.REMOTE_PASSWORD,
 	}
-	rmFile := modules.NewBackupClear(confData.SAVE_DAY, remoteHost...)
+
+	rmFile := modules.NewBackupClear(confData.SAVE_DAY, rh)
 	rmFile.ClearLocal(confData.BACKUP_SAVE_PATH)
 	rmFile.ClearRemote(confData.REMOTE_PATH)
 

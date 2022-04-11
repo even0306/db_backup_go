@@ -22,13 +22,13 @@ type ConfigFile struct {
 	BACKUP_SAVE_PATH string `json:"BACKUP_SAVE_PATH"` //备份在本地保存的路径
 
 	DB_HOST     string `json:"DB_HOST"`
-	DB_PORT     string `json:"DB_PORT"`
+	DB_PORT     int    `json:"DB_PORT"`
 	DB_USER     string `json:"DB_USER"`
 	DB_PASSWORD string `json:"DB_PASSWORD"`
 	DB_LABEL    string `json:"DB_LABEL"` //标签，用于标记该备份来自哪个数据库
 
 	REMOTE_HOST     string `json:"REMOTE_HOST"`
-	REMOTE_PORT     string `json:"REMOTE_PORT"`
+	REMOTE_PORT     int    `json:"REMOTE_PORT"`
 	REMOTE_USER     string `json:"REMOTE_USER"`
 	REMOTE_PASSWORD string `json:"REMOTE_PASSWORD"`
 	REMOTE_PATH     string `json:"REMOTE_PATH"` //备份在异机保存的路径
@@ -43,12 +43,12 @@ func NewConfig(f string) *ConfigFile {
 		MYSQL_EXEC_PATH:  "/usr/bin",
 		BACKUP_SAVE_PATH: "",
 		DB_HOST:          "127.0.0.1",
-		DB_PORT:          "3306",
+		DB_PORT:          3306,
 		DB_USER:          "root",
 		DB_PASSWORD:      "",
 		DB_LABEL:         "",
 		REMOTE_HOST:      "",
-		REMOTE_PORT:      "",
+		REMOTE_PORT:      22,
 		REMOTE_USER:      "",
 		REMOTE_PASSWORD:  "",
 		REMOTE_PATH:      "",

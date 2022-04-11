@@ -1,9 +1,9 @@
 package main
 
 import (
+	"db_backup_go/controller"
 	"flag"
 	"log"
-	"mysql_backup_go/controller"
 	"os"
 )
 

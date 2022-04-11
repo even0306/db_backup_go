@@ -5,14 +5,14 @@
     "backup_save_path": "/home/even/mysql_backup/",
 
     "DB_HOST": "127.0.0.1",
-    "DB_PORT": "3306",
+    "DB_PORT": 3306,
     "DB_USER": "root",
     "DB_PASSWORD": "123456",
     "DB_LABEL": "db_test",
 
     "remote_backup": false,
     "REMOTE_HOST": "192.168.1.168",
-    "REMOTE_PORT": "22",
+    "REMOTE_PORT": 22,
     "REMOTE_USER": "root",
     "REMOTE_PASSWORD": "",
     "REMOTE_PATH": "/backup/"

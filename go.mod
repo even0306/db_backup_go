@@ -1,4 +1,4 @@
-module mysql_backup_go
+module db_backup_go
 
 go 1.18
 

@@ -1,9 +1,9 @@
 package modules
 
 import (
+	"db_backup_go/common"
 	"fmt"
 	"io/ioutil"
-	"mysql_backup_go/common"
 	"os"
 
 	"github.com/pkg/sftp"
@@ -15,26 +15,21 @@ type Clear interface {
 }
 
 type remoteHost struct {
-	ip       string
-	port     string
+	host     string
+	port     int
 	user     string
 	password string
 }
 
 type backupFile struct {
-	remoteHost remoteHost
-	saveDay    int
+	ConnInfo
+	saveDay int
 }
 
-func NewBackupClear(saveDay int, remoteHsot ...string) *backupFile {
+func NewBackupClear(saveDay int, ci ConnInfo) *backupFile {
 	return &backupFile{
-		remoteHost: remoteHost{
-			ip:       remoteHsot[0],
-			port:     remoteHsot[1],
-			user:     remoteHsot[2],
-			password: remoteHsot[3],
-		},
-		saveDay: saveDay,
+		ConnInfo: ci,
+		saveDay:  saveDay,
 	}
 }
 
@@ -62,7 +57,7 @@ func (bf *backupFile) ClearLocal(dict string) error {
 
 func (bf *backupFile) ClearRemote(dict string) error {
 	//确认要保留的文件
-	sshSocket := NewSshSocket(bf.remoteHost.ip, bf.remoteHost.port, bf.remoteHost.user, bf.remoteHost.password)
+	sshSocket := NewSshSocket(bf.ConnInfo.Host, bf.ConnInfo.Port, bf.ConnInfo.User, bf.ConnInfo.Password)
 	sshClient, err := sshSocket.Connect()
 	if err != nil {
 		return err
