@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"os/exec"
+	"strconv"
 )
 
 type Comparison interface {
@@ -27,7 +28,7 @@ func NewCompartor(conf *common.ConfigFile, dbs *[]string) *comparisonInfo {
 
 func (c *comparisonInfo) Comparison() (*[]string, error) {
 	//获取所有数据库名
-	cmd := exec.Command(c.conf.MYSQL_EXEC_PATH+"/mysql", "-h"+c.conf.DB_HOST, "-P"+string(rune(c.conf.DB_PORT)), "-u"+c.conf.DB_USER, "-p"+c.conf.DB_PASSWORD, "-Bse", "show databases")
+	cmd := exec.Command(c.conf.MYSQL_EXEC_PATH+"/mysql", "-h"+c.conf.DB_HOST, "-P"+strconv.Itoa(c.conf.DB_PORT), "-u"+c.conf.DB_USER, "-p"+c.conf.DB_PASSWORD, "-Bse", "show databases")
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("stderr: %w", err)
