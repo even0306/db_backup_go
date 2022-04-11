@@ -42,33 +42,33 @@ func (b *backupInfo) Run(db *string) (string, error) {
 
 	var out *[]byte
 	var err error
-	dbu := NewDBDumpFunc(b.conf.MYSQL_EXEC_PATH)
 	dbi := DBInfo{
 		DBHost:     b.conf.DB_HOST,
 		DBPort:     b.conf.DB_PORT,
 		DBUser:     b.conf.DB_USER,
 		DBPassword: b.conf.DB_PASSWORD,
 	}
+	dbu := NewDBDumpFunc(b.conf.MYSQL_EXEC_PATH, &dbi)
 	if b.conf.DATABASETYPE == "mysql" {
 		if *db == "all" {
-			out, err = dbu.MysqlDumpAll(dbi)
+			out, err = dbu.MysqlDumpAll()
 			if err != nil {
 				return "", err
 			}
 		} else {
-			out, err = dbu.MysqlDump(dbi, db)
+			out, err = dbu.MysqlDump(db)
 			if err != nil {
 				return "", err
 			}
 		}
 	} else if b.conf.DATABASETYPE == "postgresql" {
 		if *db == "all" {
-			out, err = dbu.PostgresqlDumpAll(dbi)
+			out, err = dbu.PostgresqlDumpAll()
 			if err != nil {
 				return "", err
 			}
 		} else {
-			out, err = dbu.PostgresqlDump(dbi, db)
+			out, err = dbu.PostgresqlDump(db)
 			if err != nil {
 				return "", err
 			}

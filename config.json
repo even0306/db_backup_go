@@ -1,5 +1,5 @@
 {
-    "database": "mysql",
+    "database": "postgresql",
 
     "filter_method": true,
     "save_day": 7,
@@ -7,8 +7,8 @@
     "backup_save_path": "/home/even/mysql_backup/",
 
     "DB_HOST": "127.0.0.1",
-    "DB_PORT": 3306,
-    "DB_USER": "root",
+    "DB_PORT": 5432,
+    "DB_USER": "postgres",
     "DB_PASSWORD": "123456",
     "DB_LABEL": "db_test",
 
