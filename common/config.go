@@ -15,6 +15,8 @@ type ReadConfig interface {
 type ConfigFile struct {
 	configFile string
 
+	DATABASETYPE string `json:"database"`
+
 	FILTER_METHOD    bool   `json:"FILTER_METHOD"`    //正向匹配 true，反向匹配 false
 	REMOTE_BACKUP    bool   `json:"REMOTE_BACKUP"`    //开启向异机备份 true，关闭向异机备份 false
 	SAVE_DAY         int    `json:"SAVE_DAY"`         //保存备份的天数
@@ -37,6 +39,7 @@ type ConfigFile struct {
 func NewConfig(f string) *ConfigFile {
 	return &ConfigFile{
 		configFile:       f,
+		DATABASETYPE:     "",
 		FILTER_METHOD:    true,
 		REMOTE_BACKUP:    false,
 		SAVE_DAY:         7,

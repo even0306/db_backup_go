@@ -49,15 +49,29 @@ func (b *backupInfo) Run(db *string) (string, error) {
 		DBUser:     b.conf.DB_USER,
 		DBPassword: b.conf.DB_PASSWORD,
 	}
-	if *db == "all" {
-		out, err = dbu.MysqlDumpAll(dbi)
-		if err != nil {
-			return "", err
+	if b.conf.DATABASETYPE == "mysql" {
+		if *db == "all" {
+			out, err = dbu.MysqlDumpAll(dbi)
+			if err != nil {
+				return "", err
+			}
+		} else {
+			out, err = dbu.MysqlDump(dbi, db)
+			if err != nil {
+				return "", err
+			}
 		}
-	} else {
-		out, err = dbu.MysqlDump(dbi, db)
-		if err != nil {
-			return "", err
+	} else if b.conf.DATABASETYPE == "postgresql" {
+		if *db == "all" {
+			out, err = dbu.PostgresqlDumpAll(dbi)
+			if err != nil {
+				return "", err
+			}
+		} else {
+			out, err = dbu.PostgresqlDump(dbi, db)
+			if err != nil {
+				return "", err
+			}
 		}
 	}
 

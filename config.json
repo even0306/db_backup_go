@@ -1,4 +1,6 @@
 {
+    "database": "mysql",
+
     "filter_method": true,
     "save_day": 7,
     "mysql_exec_path": "/usr/bin/",
