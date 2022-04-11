@@ -92,16 +92,18 @@ func (d *dbDump) PostgresqlDumpAll() (*[]byte, error) {
 }
 
 func (d *dbDump) GetPostgresqlDBList() (*[]byte, error) {
-	cmd1 := exec.Command(d.dumpExecPath+"/psql", "`host="+d.DBHost+" port="+strconv.Itoa(d.DBPort)+" user="+d.DBUser+" password="+d.DBPassword+"`", "-c", "\"SELECT datname FROM pg_database;\"")
-	// cmd2 := exec.Command("awk", "'{if (NR>2){print $1}}'")
-	// cmd3 := exec.Command("awk", "'NR>1 {print last} {last=$0}'")
-	// cmd4 := exec.Command("awk", "'NR>1 {print last} {last=$0}'")
-	// cmd2.Stdin, _ = cmd1.StdoutPipe()
-	// cmd3.Stdin, _ = cmd2.StdoutPipe()
-	// cmd4.Stdin, _ = cmd3.StdoutPipe()
-	out, err := cmd1.Output()
+	// cmd1 := exec.Command(d.dumpExecPath+"/psql", fmt.Sprintf("host=%s port=%v user=%s password=%s", d.DBHost, d.DBPort, d.DBUser, d.DBPassword), "-c", "SELECT datname FROM pg_database;")
+	cmd1 := exec.Command(d.dumpExecPath+"/psql", fmt.Sprintf("host=%s port=%v user=%s password=%s", d.DBHost, d.DBPort, d.DBUser, d.DBPassword), "-c", fmt.Sprint("SELECT datname FROM pg_database;"))
+	cmd2 := exec.Command("awk", fmt.Sprint("{if (NR>2){print $1}}"))
+	cmd3 := exec.Command("awk", fmt.Sprint("NR>1 {print last} {last=$0}"))
+	cmd4 := exec.Command("awk", fmt.Sprint("NR>1 {print last} {last=$0}"))
+	cmd2.Stdin, _ = cmd1.StdoutPipe()
+	cmd3.Stdin, _ = cmd2.StdoutPipe()
+	cmd4.Stdin, _ = cmd3.StdoutPipe()
+	out, err := cmd4.Output()
 	if err != nil {
 		return nil, fmt.Errorf("stderr: %w", err)
 	}
+	fmt.Println(string(out))
 	return &out, nil
 }
