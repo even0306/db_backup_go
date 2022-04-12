@@ -24,6 +24,7 @@ type backupInfo struct {
 	date           string
 }
 
+//初始化备份工具，传入*common.ConfigFile类型的配置数据
 func NewBackuper(conf *common.ConfigFile) *backupInfo {
 	return &backupInfo{
 		conf:           conf,

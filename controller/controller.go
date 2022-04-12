@@ -17,6 +17,7 @@ type fileInfo struct {
 	fileNameList []string
 }
 
+//初始化控制器，传入配置文件和数据库列表文件，返回 *fileInfo 结构体实例
 func NewController(conf string, dbs string) *fileInfo {
 	return &fileInfo{
 		confFile:     conf,
@@ -25,12 +26,11 @@ func NewController(conf string, dbs string) *fileInfo {
 	}
 }
 
-//备份主程序
+//备份主程序，返回 error
 func (fi fileInfo) Controller() error {
-
 	//获取配置文件
 	conf := common.NewConfig(fi.confFile)
-	confData, err := conf.Read()
+	err := conf.Read()
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,8 @@ func (fi fileInfo) Controller() error {
 		return err
 	}
 
-	cp := modules.NewCompartor(confData, dbsData)
+	//对比出要备份的数据库列表
+	cp := modules.NewCompartor(conf, dbsData)
 	preDBS, err := cp.Comparison()
 	if err != nil {
 		return err
@@ -58,7 +59,7 @@ func (fi fileInfo) Controller() error {
 
 	var wg sync.WaitGroup
 	limiter := make(chan bool, 4)
-	bk := modules.NewBackuper(confData)
+	bk := modules.NewBackuper(conf)
 	for _, v := range *preDBS {
 		wg.Add(1)
 		limiter <- true
@@ -76,19 +77,14 @@ func (fi fileInfo) Controller() error {
 	wg.Wait()
 
 	//按天保留最新7份备份，删除之前的备份
-	rh := modules.ConnInfo{
-		Host:     confData.REMOTE_HOST,
-		Port:     confData.REMOTE_PORT,
-		User:     confData.REMOTE_USER,
-		Password: confData.REMOTE_PASSWORD,
-	}
+	sshSocket := modules.NewSshSocket(conf.REMOTE_HOST, conf.REMOTE_PORT, conf.REMOTE_USER, conf.REMOTE_PASSWORD)
 
-	rmFile := modules.NewBackupClear(confData.SAVE_DAY, rh)
-	rmFile.ClearLocal(confData.BACKUP_SAVE_PATH)
-	rmFile.ClearRemote(confData.REMOTE_PATH)
+	rmFile := modules.NewBackupClear(conf.SAVE_DAY, *sshSocket)
+	rmFile.ClearLocal(conf.BACKUP_SAVE_PATH)
+	rmFile.ClearRemote(conf.REMOTE_PATH)
 
 	for _, v := range fi.fileNameList {
-		log.Printf("备份结束\n本地备份路径：%v.gz\n远程备份路径(如开启远程备份)：%v.gz", confData.BACKUP_SAVE_PATH+v, confData.REMOTE_PATH+v)
+		log.Printf("备份结束\n本地备份路径：%v.gz\n远程备份路径(如开启远程备份)：%v.gz", conf.BACKUP_SAVE_PATH+v, conf.REMOTE_PATH+v)
 	}
 	return nil
 }

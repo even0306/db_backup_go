@@ -5,31 +5,18 @@ import (
 	"sort"
 )
 
-type Sort interface {
-	SortByTime() []os.FileInfo
-}
-
-type Files struct {
-	files []os.FileInfo
-}
-
-func NewOrder(files []os.FileInfo) *Files {
-	return &Files{
-		files: files,
-	}
-}
-
-func (fs *Files) SortByTime() []os.FileInfo {
-	sort.SliceStable(fs.files, func(i, j int) bool {
+//传入 []os.FileInfo 类型的文件夹，返回文件夹内内容经过排序，由新到旧的同类型文件夹
+func SortByTime(fs []os.FileInfo) []os.FileInfo {
+	sort.SliceStable(fs, func(i, j int) bool {
 		flag := false
-		if fs.files[i].ModTime().After(fs.files[j].ModTime()) {
+		if fs[i].ModTime().After(fs[j].ModTime()) {
 			flag = true
-		} else if fs.files[i].ModTime().Equal(fs.files[j].ModTime()) {
-			if fs.files[i].Name() < fs.files[j].Name() {
+		} else if fs[i].ModTime().Equal(fs[j].ModTime()) {
+			if fs[i].Name() < fs[j].Name() {
 				flag = true
 			}
 		}
 		return flag
 	})
-	return fs.files
+	return fs
 }

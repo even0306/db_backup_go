@@ -21,7 +21,7 @@ func NewDBList(f string) *DBList {
 	}
 }
 
-//读取数据库名
+//读取数据库列表
 func (d *DBList) Read() (*[]string, error) {
 	//打开文件
 	dbsFile, err := os.OpenFile(d.dblistFile, os.O_CREATE|os.O_RDONLY, 0666)

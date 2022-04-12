@@ -17,6 +17,7 @@ type mygzip struct {
 	filename *string
 }
 
+//初始化压缩保存功能，传入二进制文件流和文件名，返回*mygzip的结构体实例
 func NewCompress(f *[]byte, filename *string) *mygzip {
 	return &mygzip{
 		data:     f,
@@ -24,9 +25,8 @@ func NewCompress(f *[]byte, filename *string) *mygzip {
 	}
 }
 
-//保存备份的文件并压缩
+//压缩字节流，传入 *bytes.Buffer，返回error
 func (file *mygzip) CompressFile() (*bytes.Buffer, error) {
-	//压缩文件
 	gwf := gzip.NewWriter(&file.input)
 	gwf.Name = *file.filename
 	_, err := gwf.Write(*file.data)

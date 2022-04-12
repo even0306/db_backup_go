@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
+	"strings"
 )
 
 type ReadConfig interface {
-	Read() (*ConfigFile, error)
+	Read() error
 }
 
 //基础配置
@@ -36,6 +36,7 @@ type ConfigFile struct {
 	REMOTE_PATH     string `json:"REMOTE_PATH"` //备份在异机保存的路径
 }
 
+// 初始化读取配置功能，传入string类型文件，返回*ConfigFile类型的结构体指针
 func NewConfig(f string) *ConfigFile {
 	return &ConfigFile{
 		configFile:       f,
@@ -58,25 +59,38 @@ func NewConfig(f string) *ConfigFile {
 	}
 }
 
-//读取配置文件
-func (c *ConfigFile) Read() (*ConfigFile, error) {
-	//打开文件
-	jsonFile, err := os.OpenFile(c.configFile, os.O_CREATE|os.O_RDONLY, 0666)
-	if err != nil {
-		return nil, fmt.Errorf("创建日志文件失败：%w", err)
-	}
-	defer jsonFile.Close()
-
+//读取配置文件，返回error错误信息
+func (c *ConfigFile) Read() error {
 	//读取配置文件
-	byteValue, err := ioutil.ReadAll(jsonFile)
+	bf, err := ioutil.ReadFile(c.configFile)
 	if err != nil {
-		return nil, fmt.Errorf("读取配置文件失败：%w", err)
+		return fmt.Errorf("读取配置文件失败：%w", err)
 	}
 
-	//将配置文件内容传入结构体
-	err = json.Unmarshal([]byte(byteValue), c)
-	if err != nil {
-		return nil, fmt.Errorf("配置文件内容转进程序失败：%w", err)
+	//根据换行符转成string类型切片
+	lines := strings.Split(string(bf), "\n")
+
+	//遍历每一行，忽略行中带 # ; // 符号的数据，并去除行前后的无关空格，将其余数据存储起来
+	var jsonValue []string
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "#") || strings.HasPrefix(line, ";") || strings.HasPrefix(line, "//") {
+			continue
+		}
+		jsonValue = append(jsonValue, line)
 	}
-	return c, nil
+
+	//将新保存的数据的每一行末尾加上换行符，并追加到一起，成为独立字符串，方便后面转回字节流
+	var build strings.Builder
+	for _, v := range jsonValue {
+		build.WriteString(v + "\n")
+	}
+	jsonByte := build.String()
+
+	//将配置文件字节流转换为结构体
+	err = json.Unmarshal([]byte(jsonByte), c)
+	if err != nil {
+		return fmt.Errorf("配置文件内容转进程序失败：%w", err)
+	}
+	return nil
 }

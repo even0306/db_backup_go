@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+//程序主入口
 func main() {
 	version := "1.0.0"
 	printVersion := flag.Bool("version", false, "[--version]")

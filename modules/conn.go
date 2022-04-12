@@ -19,6 +19,7 @@ type ConnInfo struct {
 	Password string
 }
 
+//初始化连接器，传入远端服务器主机ip，端口，用户名，密码，返回*ConnInfo的结构体信息指针
 func NewSshSocket(host string, port int, user string, password string) *ConnInfo {
 	return &ConnInfo{
 		Host:     host,
@@ -28,6 +29,7 @@ func NewSshSocket(host string, port int, user string, password string) *ConnInfo
 	}
 }
 
+//开始连接服务器，返回ssh客户端和error
 func (sf *ConnInfo) Connect() (*ssh.Client, error) {
 	config := ssh.ClientConfig{
 		User: sf.User,

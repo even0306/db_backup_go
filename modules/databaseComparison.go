@@ -2,6 +2,7 @@ package modules
 
 import (
 	"db_backup_go/common"
+	"strings"
 )
 
 type Comparison interface {
@@ -49,12 +50,14 @@ func (c *comparisonInfo) Comparison() (*[]string, error) {
 	if c.conf.FILTER_METHOD == true {
 		for _, v := range *allDbs {
 			for _, w := range *c.dbs {
+				v = strings.TrimSpace(v)
+				w = strings.TrimSpace(w)
 				if w == "all" {
 					preDBS = nil
 					preDBS = append(preDBS, "all")
 					flag = true
 					break
-				} else if " "+w == string(v) {
+				} else if w == string(v) {
 					preDBS = append(preDBS, w)
 				}
 			}
