@@ -63,16 +63,15 @@ func (fi fileInfo) Controller() error {
 	for _, v := range *preDBS {
 		wg.Add(1)
 		limiter <- true
-		go func(db *string) {
-			fileName, err := bk.Run(db)
+		go func(db string) {
+			fileName, err := bk.Run(&db)
 			if err != nil {
-				log.Printf("%v备份失败：%v", *db, err)
+				log.Printf("%v备份失败：%v", db, err)
 			}
 			defer wg.Done()
-			log.Printf("%v备份完成", *db)
 			responseChannel <- fileName
 			<-limiter
-		}(&v)
+		}(v)
 	}
 	wg.Wait()
 
