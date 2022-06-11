@@ -19,26 +19,22 @@ type Backup interface {
 type backupInfo struct {
 	conf *common.ConfigFile
 
-	fileNameNoDate string
-	fileName       string
-	date           string
+	date string
 }
 
 //初始化备份工具，传入*common.ConfigFile类型的配置数据
 func NewBackuper(conf *common.ConfigFile) *backupInfo {
 	return &backupInfo{
-		conf:           conf,
-		fileNameNoDate: "",
-		fileName:       "",
-		date:           "",
+		conf: conf,
+		date: "",
 	}
 }
 
 //循环备份每个数据库，返回本地备份位置，异机备份位置，和err
 func (b *backupInfo) Run(db *string) (string, error) {
 	b.date = time.Now().Format("2006-01-02")
-	b.fileNameNoDate = *db + "_" + b.conf.DB_LABEL
-	b.fileName = b.fileNameNoDate + "_" + b.date + ".sql"
+	fileNameNoDate := *db + "_" + b.conf.DB_LABEL
+	fileName := fileNameNoDate + "_" + b.date + ".sql"
 	log.Printf("正在备份：%v", *db)
 
 	var out *[]byte
@@ -77,7 +73,7 @@ func (b *backupInfo) Run(db *string) (string, error) {
 	}
 
 	//压缩并保存备份文件
-	saveFile := NewCompress(out, &b.fileName)
+	saveFile := NewCompress(out, &fileName)
 	buff, err := saveFile.CompressFile()
 	if err != nil {
 		return "", err
@@ -87,7 +83,7 @@ func (b *backupInfo) Run(db *string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("创建备份文件路径失败：%w", err)
 	}
-	f, err := os.Create(b.conf.BACKUP_SAVE_PATH + "/" + *db + "/" + b.fileName + ".gz")
+	f, err := os.Create(b.conf.BACKUP_SAVE_PATH + "/" + *db + "/" + fileName + ".gz")
 	if err != nil {
 		return "", fmt.Errorf("创建备份文件失败：%w", err)
 	}
@@ -123,11 +119,11 @@ func (b *backupInfo) Run(db *string) (string, error) {
 		defer sftpClient.Close()
 
 		up := NewSftpOperater(sftpClient)
-		err = up.Upload(b.conf.BACKUP_SAVE_PATH+b.fileName, b.conf.REMOTE_PATH)
+		err = up.Upload(b.conf.BACKUP_SAVE_PATH+fileName, b.conf.REMOTE_PATH)
 		if err != nil {
 			return "", err
 		}
 	}
 
-	return b.fileName, nil
+	return fileName, nil
 }

@@ -1,6 +1,6 @@
 {
     # 目前支持 mysql 和 postgresql
-    "database": "postgresql",
+    "database": "mysql",
 
     # true 正向筛选，false 反向筛选
     "filter_method": true,
@@ -9,8 +9,8 @@
     "backup_save_path": "/home/even/mysql_backup/",
 
     "DB_HOST": "127.0.0.1",
-    "DB_PORT": 5432,
-    "DB_USER": "postgres",
+    "DB_PORT": 3308,
+    "DB_USER": "root",
     "DB_PASSWORD": "123456",
     "DB_LABEL": "db_test",
 
