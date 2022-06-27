@@ -44,7 +44,7 @@ func NewDBDumpFunc(dumpExecPath string, dbi *DBInfo) *dbDump {
 
 // 使用mysqldump备份mysql数据库，传入DBInfo结构体和要备份的数据库名指针，返回备份出的[]byte数据指针和错误
 func (d *dbDump) MysqlDump(db *string) (*[]byte, error) {
-	cmd := exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", *db)
+	cmd := exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--skip-lock-tables", *db)
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf(*db+"数据库配置失败：%w", err)
@@ -54,7 +54,7 @@ func (d *dbDump) MysqlDump(db *string) (*[]byte, error) {
 
 // 使用mysqldump备份mysql数据库，传入DBInfo结构体，返回备份出的[]byte数据指针和错误
 func (d *dbDump) MysqlDumpAll() (*[]byte, error) {
-	cmd := exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--all-databases")
+	cmd := exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--skip-lock-tables", "--all-databases")
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("all数据库配置失败：%w", err)
