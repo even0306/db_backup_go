@@ -8,6 +8,8 @@
     "mysql_exec_path": "/usr/bin/",
     "backup_save_path": "/home/even/mysql_backup/",
 
+    # 版本填写 5.7 或 8.0
+    "DB_VERSION": "5.7",
     "DB_HOST": "127.0.0.1",
     "DB_PORT": 3308,
     "DB_USER": "root",
