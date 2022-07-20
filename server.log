@@ -223,3 +223,12 @@
 远程备份路径(如开启远程备份)：/backup/all_db_218_2022-07-20.sql.gz
 2022/07/20 14:11:11 备份开始
 2022/07/20 14:11:11 正在备份：all
+2022/07/20 20:26:51 stderr: exit status 1
+2022/07/20 20:26:56 stderr: exit status 1
+2022/07/20 20:27:51 stderr: exit status 1
+2022/07/20 20:30:17 stderr: exit status 1
+2022/07/20 20:31:49 stderr: exit status 1
+2022/07/20 20:34:09 stderr: exit status 1
+2022/07/20 20:34:58 stderr: exit status 1
+2022/07/20 20:44:37 找不到config.json
+2022/07/20 20:46:28 找不到dbs.txt

@@ -1,6 +1,6 @@
 {
     # 目前支持 mysql 和 postgresql
-    "database": "mysql",
+
 
     # true 正向筛选，false 反向筛选
     "filter_method": true,
