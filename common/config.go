@@ -23,6 +23,7 @@ type ConfigFile struct {
 	MYSQL_EXEC_PATH  string `json:"MYSQL_EXEC_PATH"`  //mysql执行文件所在目录
 	BACKUP_SAVE_PATH string `json:"BACKUP_SAVE_PATH"` //备份在本地保存的路径
 
+	DB_Version  string `json:"DB_VERSION"`
 	DB_HOST     string `json:"DB_HOST"`
 	DB_PORT     int    `json:"DB_PORT"`
 	DB_USER     string `json:"DB_USER"`

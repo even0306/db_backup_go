@@ -26,6 +26,7 @@ func (c *comparisonInfo) Comparison() (*[]string, error) {
 	var err error
 	var allDbs *[]string
 	dbi := DBInfo{
+		DBVersion:  c.conf.DB_Version,
 		DBHost:     c.conf.DB_HOST,
 		DBPort:     c.conf.DB_PORT,
 		DBUser:     c.conf.DB_USER,

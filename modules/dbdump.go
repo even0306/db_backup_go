@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -23,6 +24,7 @@ type dbDump struct {
 }
 
 type DBInfo struct {
+	DBVersion  string
 	DBHost     string
 	DBPort     int
 	DBUser     string
@@ -33,6 +35,7 @@ type DBInfo struct {
 func NewDBDumpFunc(dumpExecPath string, dbi *DBInfo) *dbDump {
 	return &dbDump{
 		DBInfo: DBInfo{
+			DBVersion:  "",
 			DBHost:     dbi.DBHost,
 			DBPort:     dbi.DBPort,
 			DBUser:     dbi.DBUser,
@@ -44,20 +47,27 @@ func NewDBDumpFunc(dumpExecPath string, dbi *DBInfo) *dbDump {
 
 // 使用mysqldump备份mysql数据库，传入DBInfo结构体和要备份的数据库名指针，返回备份出的[]byte数据指针和错误
 func (d *dbDump) MysqlDump(db *string) (*[]byte, error) {
-	cmd := exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", *db)
+	var cmd *exec.Cmd
+	flag, _ := regexp.MatchString("8.0.*", d.DBVersion)
+	if flag {
+		cmd = exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--skip-lock-tables", *db)
+	} else {
+		cmd = exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "-E", "-R", "--triggers", "--skip-lock-tables", *db)
+	}
+
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf(*db+"数据库配置失败：%w", err)
+		return nil, fmt.Errorf(*db+" 数据库备份失败：%w", err)
 	}
 	return &out, nil
 }
 
 // 使用mysqldump备份mysql数据库，传入DBInfo结构体，返回备份出的[]byte数据指针和错误
 func (d *dbDump) MysqlDumpAll() (*[]byte, error) {
-	cmd := exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--all-databases")
+	cmd := exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--skip-lock-tables", "--all-databases")
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("all数据库配置失败：%w", err)
+		return nil, fmt.Errorf("all 数据库配置失败：%w", err)
 	}
 	return &out, nil
 }
@@ -98,7 +108,7 @@ func (d *dbDump) PostgresqlDump(db *string) (*[]byte, error) {
 
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf(*db+"数据库配置失败：%w", err)
+		return nil, fmt.Errorf(*db+" 数据库配置失败：%w", err)
 	}
 	return &out, nil
 }
@@ -128,7 +138,7 @@ func (d *dbDump) PostgresqlDumpAll() (*[]byte, error) {
 
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("all数据库配置失败：%w", err)
+		return nil, fmt.Errorf("all 数据库配置失败：%w", err)
 	}
 	return &out, nil
 }

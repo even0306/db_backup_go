@@ -26,7 +26,7 @@ func NewSftpOperater(sftpClient *sftp.Client) *sftpInfo {
 	}
 }
 
-//发送到远端，传入目标路径和本地路径，返回error
+//发送到远端，传入本地文件路径和目标文件夹路径，返回error
 func (op *sftpInfo) Upload(src string, dst string) error {
 	srcValue, err := os.Open(src)
 	if err != nil {

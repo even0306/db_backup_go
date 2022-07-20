@@ -3,6 +3,7 @@ package modules
 import (
 	"db_backup_go/common"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"os"
 
@@ -34,18 +35,35 @@ func (bf *backupFile) ClearLocal(dict string) error {
 	if err != nil {
 		return fmt.Errorf("读取目录失败：%w", err)
 	}
-	cf := common.SortByTime(fsDict)
-	if len(cf) < bf.saveDay {
-		bf.saveDay = len(cf)
+	var fsNameList []string
+	for _, fsName := range fsDict {
+		if fsName.IsDir() {
+			fsNameList = append(fsNameList, fsName.Name())
+		}
 	}
 
-	cf = cf[bf.saveDay:]
+	var backupPath []fs.FileInfo
+	for _, v := range fsNameList {
+		backupPath, err = ioutil.ReadDir(dict + "/" + v)
+		if err != nil {
+			return fmt.Errorf("读取目录下文件失败：%w", err)
+		}
 
-	//删除旧备份
-	for _, v := range cf {
-		os.Remove(dict + "/" + v.Name())
+		cf := common.SortByTime(backupPath)
+		if len(cf) <= bf.saveDay {
+			bf.saveDay = len(cf)
+		}
+
+		cf = cf[bf.saveDay:]
+
+		//删除旧备份
+		for _, oldfile := range cf {
+			err := os.Remove(dict + "/" + v + "/" + oldfile.Name())
+			if err != nil {
+				return fmt.Errorf("旧备份文件删除失败：%w", err)
+			}
+		}
 	}
-
 	return nil
 }
 
