@@ -12,9 +12,11 @@ type Controller interface {
 }
 
 type fileInfo struct {
-	confFile     string
-	dbsFile      string
-	fileNameList []string
+	confFile       string
+	dbsFile        string
+	fileNameList   []string
+	backupFilePath string
+	backupFileName string
 }
 
 //初始化控制器，传入配置文件和数据库列表文件，返回 *fileInfo 结构体实例
@@ -64,12 +66,12 @@ func (fi fileInfo) Controller() error {
 		wg.Add(1)
 		limiter <- true
 		go func(db string) {
-			fileName, err := bk.Run(&db)
+			fi.backupFilePath, fi.backupFilePath, err = bk.Run(&db)
 			if err != nil {
 				log.Printf("%v备份失败：%v", db, err)
 			}
 			defer wg.Done()
-			responseChannel <- fileName
+			responseChannel <- fi.backupFileName
 			<-limiter
 		}(v)
 	}
@@ -79,7 +81,7 @@ func (fi fileInfo) Controller() error {
 	sshSocket := modules.NewSshSocket(conf.REMOTE_HOST, conf.REMOTE_PORT, conf.REMOTE_USER, conf.REMOTE_PASSWORD)
 
 	rmFile := modules.NewBackupClear(conf.SAVE_DAY, *sshSocket)
-	rmFile.ClearLocal(conf.BACKUP_SAVE_PATH)
+	rmFile.ClearLocal(fi.backupFilePath)
 	rmFile.ClearRemote(conf.REMOTE_PATH)
 
 	for _, v := range fi.fileNameList {
