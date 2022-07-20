@@ -50,15 +50,18 @@ func (bf *backupFile) ClearLocal(dict string) error {
 		}
 
 		cf := common.SortByTime(backupPath)
-		if len(cf) < bf.saveDay {
+		if len(cf) <= bf.saveDay {
 			bf.saveDay = len(cf)
 		}
 
 		cf = cf[bf.saveDay:]
 
 		//删除旧备份
-		for _, v := range cf {
-			os.Remove(dict + "/" + v.Name())
+		for _, oldfile := range cf {
+			err := os.Remove(dict + "/" + v + "/" + oldfile.Name())
+			if err != nil {
+				return fmt.Errorf("旧备份文件删除失败：%w", err)
+			}
 		}
 	}
 	return nil

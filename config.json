@@ -11,10 +11,10 @@
     # 版本填写 5.7 或 8.0
     "DB_VERSION": "5.7",
     "DB_HOST": "127.0.0.1",
-    "DB_PORT": 3308,
+    "DB_PORT": 3306,
     "DB_USER": "root",
     "DB_PASSWORD": "123456",
-    "DB_LABEL": "db_test",
+    "DB_LABEL": "db_218",
 
     # true 开启发送到异机功能，false 关闭发送到异机功能
     "remote_backup": false,
