@@ -25,7 +25,7 @@ jobs:
         go-version: 1.18
 
     - name: Build
-      run: go build -v -o db_backup_go_${{ matrix.goos }}_${{ matrix.goarch }} ./...
+      run: go build -v -o ./db_backup_go_${{ matrix.goos }}_${{ matrix.goarch }} ./...
       env:
         GOOS: ${{ matrix.goos }}
         GOARCH: ${{ matrix.goarch }}
