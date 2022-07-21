@@ -104,7 +104,7 @@ func (c *ConfigFile) Read() error {
 			log.Panicf("配置文件中缺少字段：%v", c.DATABASETYPE)
 		}
 
-		TypeAssertion(v)
+		TypeAssertion(v.Field(i).Interface())
 
 	}
 	return nil
