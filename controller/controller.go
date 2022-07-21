@@ -76,14 +76,14 @@ func (fi fileInfo) Controller() error {
 	wg.Wait()
 
 	//按天保留最新7份备份，删除之前的备份
-	sshSocket := modules.NewSshSocket(conf.REMOTE_HOST, conf.REMOTE_PORT, conf.REMOTE_USER, conf.REMOTE_PASSWORD)
+	sshSocket := modules.NewSshSocket(*conf.REMOTE_HOST, *conf.REMOTE_PORT, *conf.REMOTE_USER, *conf.REMOTE_PASSWORD)
 
-	rmFile := modules.NewBackupClear(conf.SAVE_DAY, *sshSocket)
-	rmFile.ClearLocal(conf.BACKUP_SAVE_PATH)
-	rmFile.ClearRemote(conf.REMOTE_PATH)
+	rmFile := modules.NewBackupClear(*conf.SAVE_DAY, *sshSocket)
+	rmFile.ClearLocal(*conf.BACKUP_SAVE_PATH)
+	rmFile.ClearRemote(*conf.REMOTE_PATH)
 
 	for _, v := range fi.fileNameList {
-		log.Printf("备份结束\n本地备份路径：%v.gz\n远程备份路径(如开启远程备份)：%v.gz", conf.BACKUP_SAVE_PATH+v, conf.REMOTE_PATH+v)
+		log.Printf("备份结束\n本地备份路径：%v.gz\n远程备份路径(如开启远程备份)：%v.gz", *conf.BACKUP_SAVE_PATH+v, *conf.REMOTE_PATH+v)
 	}
 	return nil
 }

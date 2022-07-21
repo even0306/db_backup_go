@@ -232,3 +232,8 @@
 2022/07/20 20:34:58 stderr: exit status 1
 2022/07/20 20:44:37 找不到config.json
 2022/07/20 20:46:28 找不到dbs.txt
+2022/07/20 22:30:34 配置文件中字段：0xc0000827f0 不能为空
+2022/07/20 22:31:06 配置文件中字段： 不能为空
+2022/07/20 22:31:29 配置文件中字段：0xc0000b8330 不能为空
+2022/07/20 22:53:58 配置文件内容转进程序失败：json: cannot unmarshal bool into Go struct field ConfigFile.FILTER_METHOD of type string
+2022/07/20 22:59:43 配置文件内容转进程序失败：json: Unmarshal(non-pointer common.ConfigFile)
