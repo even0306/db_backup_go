@@ -2,6 +2,7 @@ package modules
 
 import (
 	"db_backup_go/common"
+	"log"
 	"strings"
 )
 
@@ -47,6 +48,7 @@ func (c *comparisonInfo) Comparison() (*[]string, error) {
 
 	//根据筛选方式，筛选出待备份的数据库
 	var preDBS []string
+	var errDBS []string
 	var flag = false
 	if c.conf.FILTER_METHOD == true {
 		for _, v := range *allDbs {
@@ -60,6 +62,8 @@ func (c *comparisonInfo) Comparison() (*[]string, error) {
 					break
 				} else if w == string(v) {
 					preDBS = append(preDBS, w)
+				} else {
+					errDBS = append(errDBS, w)
 				}
 			}
 			if flag == true {
@@ -76,11 +80,19 @@ func (c *comparisonInfo) Comparison() (*[]string, error) {
 					break
 				} else if w != string(v) {
 					preDBS = append(preDBS, w)
+				} else {
+					errDBS = append(errDBS, w)
 				}
 			}
 			if flag == true {
 				break
 			}
+		}
+	}
+
+	if errDBS != nil {
+		for _, v := range errDBS {
+			log.Printf("数据库 %v 不存在，备份失败", v)
 		}
 	}
 	return &preDBS, nil

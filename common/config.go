@@ -97,6 +97,12 @@ func (c *ConfigFile) Read() error {
 		return fmt.Errorf("配置文件内容转进程序失败：%w", err)
 	}
 
+	if c.REMOTE_BACKUP == false {
+		(*c).REMOTE_HOST = "1"
+		c.REMOTE_USER = "1"
+		(*c).REMOTE_PASSWORD = "1"
+		c.REMOTE_PATH = "1"
+	}
 	k := reflect.TypeOf(*c)
 	v := reflect.ValueOf(*c)
 	for i := 1; i < v.NumField(); i++ {

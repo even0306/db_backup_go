@@ -243,3 +243,9 @@
 2022/07/23 13:20:31 BACKUP_SAVE_PATH 在配置文件中没有配置，或者缺少值
 2022/07/23 13:21:09 BACKUP_SAVE_PATH 在配置文件中没有配置，或者缺少值
 2022/07/23 13:21:21 BACKUP_SAVE_PATH 在配置文件中没有配置，或者缺少值
+2022/07/23 13:56:50 REMOTE_PASSWORD 在配置文件中没有配置，或者缺少值
+2022/07/23 13:59:12 配置文件内容转进程序失败：invalid character '#' looking for beginning of object key string
+2022/07/23 14:13:34 REMOTE_PASSWORD 在配置文件中没有配置，或者缺少值
+2022/07/23 14:29:35 REMOTE_PASSWORD 在配置文件中没有配置，或者缺少值
+2022/07/23 14:30:12 REMOTE_PASSWORD 在配置文件中没有配置，或者缺少值
+2022/07/23 14:34:39 stderr: exit status 1
