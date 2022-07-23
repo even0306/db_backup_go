@@ -26,19 +26,19 @@ func (c *comparisonInfo) Comparison() (*[]string, error) {
 	var err error
 	var allDbs *[]string
 	dbi := DBInfo{
-		DBVersion:  *c.conf.DB_Version,
-		DBHost:     *c.conf.DB_HOST,
-		DBPort:     *c.conf.DB_PORT,
-		DBUser:     *c.conf.DB_USER,
-		DBPassword: *c.conf.DB_PASSWORD,
+		DBVersion:  c.conf.DB_Version,
+		DBHost:     c.conf.DB_HOST,
+		DBPort:     c.conf.DB_PORT,
+		DBUser:     c.conf.DB_USER,
+		DBPassword: c.conf.DB_PASSWORD,
 	}
-	dbu := NewDBDumpFunc(*c.conf.MYSQL_EXEC_PATH, &dbi)
-	if *c.conf.DATABASETYPE == "mysql" {
+	dbu := NewDBDumpFunc(c.conf.MYSQL_EXEC_PATH, &dbi)
+	if c.conf.DATABASETYPE == "mysql" {
 		allDbs, err = dbu.GetMysqlDBList()
 		if err != nil {
 			return nil, err
 		}
-	} else if *c.conf.DATABASETYPE == "postgresql" {
+	} else if c.conf.DATABASETYPE == "postgresql" {
 		allDbs, err = dbu.GetPostgresqlDBList()
 		if err != nil {
 			return nil, err
@@ -48,7 +48,7 @@ func (c *comparisonInfo) Comparison() (*[]string, error) {
 	//根据筛选方式，筛选出待备份的数据库
 	var preDBS []string
 	var flag = false
-	if *c.conf.FILTER_METHOD == true {
+	if c.conf.FILTER_METHOD == true {
 		for _, v := range *allDbs {
 			for _, w := range *c.dbs {
 				v = strings.TrimSpace(v)

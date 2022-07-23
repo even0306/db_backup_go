@@ -2,27 +2,17 @@ package common
 
 import (
 	"fmt"
-	"log"
-	"reflect"
-	"unsafe"
 )
 
-func TypeAssertion(tp any) {
-	b := (*string)(unsafe.Pointer(uintptr(tp)))
-	switch b {
+func TypeAssertion(tp any) (string, error) {
+	switch tp.(type) {
+	case int:
+		return "int", nil
 	case string:
-		if *b == "" {
-			log.Panicf("配置文件中字段：%v 不能为空", b)
-		}
-	case reflect.Int.String():
-		if b == nil {
-			log.Panicf("配置文件中字段：%v 不能为空", b)
-		}
-	case reflect.Bool.String():
-		if b == nil {
-			log.Panicf("配置文件中字段：%v 不能为空", b)
-		}
+		return "string", nil
+	case bool:
+		return "bool", nil
 	default:
-		fmt.Print("aa")
+		return "", fmt.Errorf("无法识别的类型")
 	}
 }
