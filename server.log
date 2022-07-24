@@ -223,3 +223,41 @@
 远程备份路径(如开启远程备份)：/backup/all_db_218_2022-07-20.sql.gz
 2022/07/20 14:11:11 备份开始
 2022/07/20 14:11:11 正在备份：all
+2022/07/20 20:26:51 stderr: exit status 1
+2022/07/20 20:26:56 stderr: exit status 1
+2022/07/20 20:27:51 stderr: exit status 1
+2022/07/20 20:30:17 stderr: exit status 1
+2022/07/20 20:31:49 stderr: exit status 1
+2022/07/20 20:34:09 stderr: exit status 1
+2022/07/20 20:34:58 stderr: exit status 1
+2022/07/20 20:44:37 找不到config.json
+2022/07/20 20:46:28 找不到dbs.txt
+2022/07/20 22:30:34 配置文件中字段：0xc0000827f0 不能为空
+2022/07/20 22:31:06 配置文件中字段： 不能为空
+2022/07/20 22:31:29 配置文件中字段：0xc0000b8330 不能为空
+2022/07/20 22:53:58 配置文件内容转进程序失败：json: cannot unmarshal bool into Go struct field ConfigFile.FILTER_METHOD of type string
+2022/07/20 22:59:43 配置文件内容转进程序失败：json: Unmarshal(non-pointer common.ConfigFile)
+2022/07/23 13:14:18 不能为空
+2022/07/23 13:14:57 不能为空
+2022/07/23 13:16:06 BACKUP_SAVE_PATH不能为空
+2022/07/23 13:20:31 BACKUP_SAVE_PATH 在配置文件中没有配置，或者缺少值
+2022/07/23 13:21:09 BACKUP_SAVE_PATH 在配置文件中没有配置，或者缺少值
+2022/07/23 13:21:21 BACKUP_SAVE_PATH 在配置文件中没有配置，或者缺少值
+2022/07/23 13:56:50 REMOTE_PASSWORD 在配置文件中没有配置，或者缺少值
+2022/07/23 13:59:12 配置文件内容转进程序失败：invalid character '#' looking for beginning of object key string
+2022/07/23 14:13:34 REMOTE_PASSWORD 在配置文件中没有配置，或者缺少值
+2022/07/23 14:29:35 REMOTE_PASSWORD 在配置文件中没有配置，或者缺少值
+2022/07/23 14:30:12 REMOTE_PASSWORD 在配置文件中没有配置，或者缺少值
+2022/07/23 14:34:39 stderr: exit status 1
+2022/07/24 13:14:41 数据库 234 不存在，备份失败
+2022/07/24 13:46:22 stderr: fork/exec /usr/bin//mysql: no such file or directory
+2022/07/24 13:46:57 备份开始
+2022/07/24 13:46:57 正在备份：mysql
+2022/07/24 13:46:57 mysql备份失败：mysql 数据库备份失败：fork/exec /usr/bin//mysqldump: no such file or directory
+2022/07/24 13:53:19 备份开始
+2022/07/24 13:53:19 正在备份：mysql
+2022/07/24 13:53:19 mysql备份失败：mysql 数据库备份失败：fork/exec /usr/bin//mysqldump: no such file or directory
+2022/07/24 15:47:19 stderr: exit status 2
+2022/07/24 15:47:39 stderr: exit status 2
+2022/07/24 15:51:21 数据库 mysql 不存在，备份失败
+2022/07/24 15:51:31 备份开始

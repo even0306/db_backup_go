@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -50,9 +49,9 @@ func (d *dbDump) MysqlDump(db *string) (*[]byte, error) {
 	var cmd *exec.Cmd
 	flag, _ := regexp.MatchString("8.0.*", d.DBVersion)
 	if flag {
-		cmd = exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--skip-lock-tables", *db)
+		cmd = exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+fmt.Sprint(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--skip-lock-tables", *db)
 	} else {
-		cmd = exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "-E", "-R", "--triggers", "--skip-lock-tables", *db)
+		cmd = exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+fmt.Sprint(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "-E", "-R", "--triggers", "--skip-lock-tables", *db)
 	}
 
 	out, err := cmd.Output()
@@ -64,7 +63,14 @@ func (d *dbDump) MysqlDump(db *string) (*[]byte, error) {
 
 // 使用mysqldump备份mysql数据库，传入DBInfo结构体，返回备份出的[]byte数据指针和错误
 func (d *dbDump) MysqlDumpAll() (*[]byte, error) {
-	cmd := exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--skip-lock-tables", "--all-databases")
+	var cmd *exec.Cmd
+	flag, _ := regexp.MatchString("8.0.*", d.DBVersion)
+	if flag {
+		cmd = exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+fmt.Sprint(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--skip-lock-tables", "--all-databases")
+	} else {
+		cmd = exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+fmt.Sprint(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "-E", "-R", "--triggers", "--skip-lock-tables", "--all-databases")
+	}
+
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("all 数据库配置失败：%w", err)
@@ -74,7 +80,7 @@ func (d *dbDump) MysqlDumpAll() (*[]byte, error) {
 
 // 使用mysql客户端查看mysql数据库现有的库，返回*[]string的数据库列表切片指针
 func (d *dbDump) GetMysqlDBList() (*[]string, error) {
-	cmd := exec.Command(d.dumpExecPath+"/mysql", "-h"+d.DBHost, "-P"+strconv.Itoa(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "-Bse", "show databases")
+	cmd := exec.Command(d.dumpExecPath+"/mysql", "-h"+d.DBHost, "-P"+fmt.Sprint(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "-Bse", "show databases")
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("stderr: %w", err)
@@ -85,7 +91,7 @@ func (d *dbDump) GetMysqlDBList() (*[]string, error) {
 
 // 使用pg_dump备份postgresql数据库，传入DBInfo结构体和要备份的数据库名指针，返回备份出的[]byte数据指针和错误
 func (d *dbDump) PostgresqlDump(db *string) (*[]byte, error) {
-	cmd := exec.Command(d.dumpExecPath+"/pg_dump", "-h", d.DBHost, "-p", strconv.Itoa(d.DBPort), "-U", d.DBUser, "-d", *db, "--inserts")
+	cmd := exec.Command(d.dumpExecPath+"/pg_dump", "-h", d.DBHost, "-p", fmt.Sprint(d.DBPort), "-U", d.DBUser, "-d", *db, "--inserts")
 
 	env := os.Environ()
 	cmdEnv := []string{}
@@ -101,7 +107,7 @@ func (d *dbDump) PostgresqlDump(db *string) (*[]byte, error) {
 			cmdEnv = append(cmdEnv, e)
 		}
 	}
-	if flag == false {
+	if !flag {
 		cmdEnv = append(cmdEnv, "PGPASSWORD="+d.DBPassword)
 	}
 	cmd.Env = cmdEnv
@@ -115,7 +121,7 @@ func (d *dbDump) PostgresqlDump(db *string) (*[]byte, error) {
 
 // 使用pg_dump备份postgresql数据库，传入DBInfo结构体，返回备份出的[]byte数据指针和错误
 func (d *dbDump) PostgresqlDumpAll() (*[]byte, error) {
-	cmd := exec.Command(d.dumpExecPath+"/pg_dumpall", "-h", d.DBHost, "-p", strconv.Itoa(d.DBPort), "-U", d.DBUser, "--inserts")
+	cmd := exec.Command(d.dumpExecPath+"/pg_dumpall", "-h", d.DBHost, "-p", fmt.Sprint(d.DBPort), "-U", d.DBUser, "--inserts")
 
 	env := os.Environ()
 	cmdEnv := []string{}
@@ -131,7 +137,7 @@ func (d *dbDump) PostgresqlDumpAll() (*[]byte, error) {
 			cmdEnv = append(cmdEnv, e)
 		}
 	}
-	if flag == false {
+	if !flag {
 		cmdEnv = append(cmdEnv, "PGPASSWORD="+d.DBPassword)
 	}
 	cmd.Env = cmdEnv
@@ -145,7 +151,7 @@ func (d *dbDump) PostgresqlDumpAll() (*[]byte, error) {
 
 // 使用postgresql客户端查看postgresql数据库现有的库，返回*[]string的数据库列表切片指针
 func (d *dbDump) GetPostgresqlDBList() (*[]string, error) {
-	cmd := exec.Command(d.dumpExecPath+"/psql", fmt.Sprintf("host=%s port=%v user=%s password=%s", d.DBHost, d.DBPort, d.DBUser, d.DBPassword), "-c", fmt.Sprint("SELECT datname FROM pg_database;"))
+	cmd := exec.Command(d.dumpExecPath+"/psql", fmt.Sprintf("host=%s port=%v user=%s password=%s", d.DBHost, d.DBPort, d.DBUser, d.DBPassword), "-c", "SELECT datname FROM pg_database;")
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("stderr: %w", err)

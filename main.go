@@ -9,7 +9,7 @@ import (
 
 //程序主入口
 func main() {
-	version := "1.1.3"
+	version := "1.1.5"
 	printVersion := flag.Bool("version", false, "[--version]")
 	flag.Parse()
 	if *printVersion {
@@ -22,9 +22,22 @@ func main() {
 	if err != nil {
 		log.Panicf("打开日志文件失败：%v", err)
 	}
-	c := controller.NewController("config.json", "dbs.txt")
-	err = c.Controller()
-	if err != nil {
-		log.Panic(err)
+
+	_, err = os.Stat("config.json")
+	if err == nil {
+		_, err = os.Stat("dbs.txt")
+		if err == nil {
+			c := controller.NewController("config.json", "dbs.txt")
+			err = c.Controller()
+			if err != nil {
+				log.Panic(err)
+			}
+		}
+		if os.IsNotExist(err) {
+			log.Panic("找不到dbs.txt")
+		}
+	}
+	if os.IsNotExist(err) {
+		log.Panic("找不到config.json")
 	}
 }

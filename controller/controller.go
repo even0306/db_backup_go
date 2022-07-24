@@ -66,7 +66,7 @@ func (fi fileInfo) Controller() error {
 		go func(db string) {
 			fileName, err := bk.Run(&db)
 			if err != nil {
-				log.Printf("%v备份失败：%v", db, err)
+				log.Panicf("%v备份失败：%v", db, err)
 			}
 			defer wg.Done()
 			responseChannel <- fileName

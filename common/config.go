@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"reflect"
 	"strings"
 )
 
@@ -41,19 +43,20 @@ type ConfigFile struct {
 func NewConfig(f string) *ConfigFile {
 	return &ConfigFile{
 		configFile:       f,
-		DATABASETYPE:     "",
+		DATABASETYPE:     "mysql",
 		FILTER_METHOD:    true,
 		REMOTE_BACKUP:    false,
 		SAVE_DAY:         7,
-		MYSQL_EXEC_PATH:  "/usr/bin",
+		MYSQL_EXEC_PATH:  "/bin/",
 		BACKUP_SAVE_PATH: "",
+		DB_Version:       "8.0",
 		DB_HOST:          "127.0.0.1",
 		DB_PORT:          3306,
 		DB_USER:          "root",
 		DB_PASSWORD:      "",
 		DB_LABEL:         "",
 		REMOTE_HOST:      "",
-		REMOTE_PORT:      22,
+		REMOTE_PORT:      0,
 		REMOTE_USER:      "",
 		REMOTE_PASSWORD:  "",
 		REMOTE_PATH:      "",
@@ -92,6 +95,20 @@ func (c *ConfigFile) Read() error {
 	err = json.Unmarshal([]byte(jsonByte), c)
 	if err != nil {
 		return fmt.Errorf("配置文件内容转进程序失败：%w", err)
+	}
+
+	if c.REMOTE_BACKUP == false {
+		(*c).REMOTE_HOST = "1"
+		c.REMOTE_USER = "1"
+		(*c).REMOTE_PASSWORD = "1"
+		c.REMOTE_PATH = "1"
+	}
+	k := reflect.TypeOf(*c)
+	v := reflect.ValueOf(*c)
+	for i := 1; i < v.NumField(); i++ {
+		if v.Field(i).Interface() == "" {
+			log.Panicf("%v 在配置文件中没有配置，或者缺少值", k.Field(i).Tag.Get("json"))
+		}
 	}
 	return nil
 }
