@@ -9,7 +9,7 @@ import (
 
 //程序主入口
 func main() {
-	version := "1.1.4"
+	version := "1.1.5"
 	printVersion := flag.Bool("version", false, "[--version]")
 	flag.Parse()
 	if *printVersion {

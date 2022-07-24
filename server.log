@@ -257,3 +257,7 @@
 2022/07/24 13:53:19 备份开始
 2022/07/24 13:53:19 正在备份：mysql
 2022/07/24 13:53:19 mysql备份失败：mysql 数据库备份失败：fork/exec /usr/bin//mysqldump: no such file or directory
+2022/07/24 15:47:19 stderr: exit status 2
+2022/07/24 15:47:39 stderr: exit status 2
+2022/07/24 15:51:21 数据库 mysql 不存在，备份失败
+2022/07/24 15:51:31 备份开始
