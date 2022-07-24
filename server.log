@@ -250,3 +250,10 @@
 2022/07/23 14:30:12 REMOTE_PASSWORD 在配置文件中没有配置，或者缺少值
 2022/07/23 14:34:39 stderr: exit status 1
 2022/07/24 13:14:41 数据库 234 不存在，备份失败
+2022/07/24 13:46:22 stderr: fork/exec /usr/bin//mysql: no such file or directory
+2022/07/24 13:46:57 备份开始
+2022/07/24 13:46:57 正在备份：mysql
+2022/07/24 13:46:57 mysql备份失败：mysql 数据库备份失败：fork/exec /usr/bin//mysqldump: no such file or directory
+2022/07/24 13:53:19 备份开始
+2022/07/24 13:53:19 正在备份：mysql
+2022/07/24 13:53:19 mysql备份失败：mysql 数据库备份失败：fork/exec /usr/bin//mysqldump: no such file or directory
