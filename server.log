@@ -373,3 +373,6 @@
 2022/12/02 22:29:56 正在备份：aaa
 2022/12/02 22:29:56 mysqldump: [Warning] Using a password on the command line interface can be insecure.
 2022/12/02 22:29:57 aaa备份成功
+2022/12/02 22:45:11 aaa备份开始
+2022/12/02 22:45:11 mysqldump: [Warning] Using a password on the command line interface can be insecure.
+2022/12/02 22:45:12 aaa备份成功
