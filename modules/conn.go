@@ -40,7 +40,7 @@ func (sf *ConnInfo) Connect() (*ssh.Client, error) {
 		Timeout: 10 * time.Second,
 	}
 
-	sshClient, err := ssh.Dial("tcp", sf.Host+":"+string(rune(sf.Port)), &config)
+	sshClient, err := ssh.Dial("tcp", sf.Host+":"+fmt.Sprint(sf.Port), &config)
 	if err != nil {
 		return nil, fmt.Errorf("ssh连接失败：%w", err)
 	}

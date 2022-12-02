@@ -27,15 +27,20 @@ func NewSftpOperater(sftpClient *sftp.Client) *sftpInfo {
 }
 
 //发送到远端，传入本地文件路径和目标文件夹路径，返回error
-func (op *sftpInfo) Upload(src string, dst string) error {
+func (op *sftpInfo) Upload(src string, dst string, fn string) error {
 	srcValue, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("发送到远程时，打开本地文件失败：%w", err)
 	}
-	dstValue, err := op.sftpClient.Create(dst)
+	err = op.sftpClient.MkdirAll(dst)
 	if err != nil {
-		return fmt.Errorf("发送到远程时，创建远程文件失败：%w", err)
+		return fmt.Errorf("目标机器创建文件夹失败，请检查权限：%w", err)
 	}
+	dstValue, err := op.sftpClient.Create(dst + "/" + fn)
+	if err != nil {
+		return fmt.Errorf("创建远程文件失败：%w", err)
+	}
+
 	defer srcValue.Close()
 	defer dstValue.Close()
 

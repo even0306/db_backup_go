@@ -1,7 +1,10 @@
 package modules
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"regexp"
@@ -54,10 +57,26 @@ func (d *dbDump) MysqlDump(db *string) (*[]byte, error) {
 		cmd = exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+fmt.Sprint(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "-E", "-R", "--triggers", "--skip-lock-tables", *db)
 	}
 
-	out, err := cmd.Output()
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
 	if err != nil {
-		return nil, fmt.Errorf(*db+" 数据库备份失败：%w", err)
+		warn := stderr.String()
+		str := strings.NewReader(warn)
+		br := bufio.NewReader(str)
+		t, _, err := br.ReadLine()
+		if err != nil {
+			return nil, err
+		}
+		if string(t) == "mysqldump: [Warning] Using a password on the command line interface can be insecure." {
+			log.Print(string(t))
+		} else {
+			return nil, fmt.Errorf(*db+" 数据库备份失败：%w", err)
+		}
 	}
+	out := stdout.Bytes()
 	return &out, nil
 }
 
