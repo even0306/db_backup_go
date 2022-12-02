@@ -1,7 +1,10 @@
 package modules
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"regexp"
@@ -44,6 +47,9 @@ func NewDBDumpFunc(dumpExecPath string, dbi *DBInfo) *dbDump {
 	}
 }
 
+var stdout bytes.Buffer
+var stderr bytes.Buffer
+
 // 使用mysqldump备份mysql数据库，传入DBInfo结构体和要备份的数据库名指针，返回备份出的[]byte数据指针和错误
 func (d *dbDump) MysqlDump(db *string) (*[]byte, error) {
 	var cmd *exec.Cmd
@@ -53,11 +59,22 @@ func (d *dbDump) MysqlDump(db *string) (*[]byte, error) {
 	} else {
 		cmd = exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+fmt.Sprint(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "-E", "-R", "--triggers", "--skip-lock-tables", *db)
 	}
-
-	out, err := cmd.Output()
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
 	if err != nil {
-		return nil, fmt.Errorf(*db+" 数据库备份失败：%w", err)
+		br := bufio.NewReader(strings.NewReader(stderr.String()))
+		t, _, err := br.ReadLine()
+		if err != nil {
+			return nil, err
+		}
+		if string(t) == "mysqldump: [Warning] Using a password on the command line interface can be insecure." {
+			log.Print(string(t))
+		} else {
+			return nil, fmt.Errorf(*db+" 数据库备份失败：%w:%v", err, stderr.String())
+		}
 	}
+	out := stdout.Bytes()
 	return &out, nil
 }
 
@@ -70,11 +87,22 @@ func (d *dbDump) MysqlDumpAll() (*[]byte, error) {
 	} else {
 		cmd = exec.Command(d.dumpExecPath+"/mysqldump", "-h"+d.DBHost, "-P"+fmt.Sprint(d.DBPort), "-u"+d.DBUser, "-p"+d.DBPassword, "-E", "-R", "--triggers", "--skip-lock-tables", "--all-databases")
 	}
-
-	out, err := cmd.Output()
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
 	if err != nil {
-		return nil, fmt.Errorf("all 数据库配置失败：%w", err)
+		br := bufio.NewReader(strings.NewReader(stderr.String()))
+		t, _, err := br.ReadLine()
+		if err != nil {
+			return nil, err
+		}
+		if string(t) == "mysqldump: [Warning] Using a password on the command line interface can be insecure." {
+			log.Print(string(t))
+		} else {
+			return nil, fmt.Errorf("ALL数据库备份失败：%w:%v", err, stderr.String())
+		}
 	}
+	out := stdout.Bytes()
 	return &out, nil
 }
 
@@ -111,11 +139,13 @@ func (d *dbDump) PostgresqlDump(db *string) (*[]byte, error) {
 		cmdEnv = append(cmdEnv, "PGPASSWORD="+d.DBPassword)
 	}
 	cmd.Env = cmdEnv
-
-	out, err := cmd.Output()
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
 	if err != nil {
-		return nil, fmt.Errorf(*db+" 数据库配置失败：%w", err)
+		return nil, fmt.Errorf(*db+" 数据库备份失败：%w:%v", err, stderr.String())
 	}
+	out := stdout.Bytes()
 	return &out, nil
 }
 
@@ -141,11 +171,13 @@ func (d *dbDump) PostgresqlDumpAll() (*[]byte, error) {
 		cmdEnv = append(cmdEnv, "PGPASSWORD="+d.DBPassword)
 	}
 	cmd.Env = cmdEnv
-
-	out, err := cmd.Output()
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
 	if err != nil {
-		return nil, fmt.Errorf("all 数据库配置失败：%w", err)
+		return nil, fmt.Errorf("ALL数据库备份失败：%w:%v", err, stderr.String())
 	}
+	out := stdout.Bytes()
 	return &out, nil
 }
 

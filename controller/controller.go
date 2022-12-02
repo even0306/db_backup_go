@@ -49,7 +49,6 @@ func (fi fileInfo) Controller() error {
 	}
 
 	//开始循环备份每个数据库
-	log.Println("备份开始")
 	var responseChannel = make(chan string)
 	go func(fl *[]string) {
 		for v := range responseChannel {
@@ -61,6 +60,7 @@ func (fi fileInfo) Controller() error {
 	limiter := make(chan bool, 4)
 	bk := modules.NewBackuper(conf)
 	for _, v := range *preDBS {
+		log.Printf("%v备份开始", v)
 		wg.Add(1)
 		limiter <- true
 		go func(db string) {
@@ -83,7 +83,7 @@ func (fi fileInfo) Controller() error {
 	rmFile.ClearRemote(conf.REMOTE_PATH)
 
 	for _, v := range fi.fileNameList {
-		log.Printf("备份结束\n本地备份路径：%v.gz\n远程备份路径(如开启远程备份)：%v.gz", conf.BACKUP_SAVE_PATH+v, conf.REMOTE_PATH+v)
+		log.Printf("%v备份成功", v)
 	}
 	return nil
 }

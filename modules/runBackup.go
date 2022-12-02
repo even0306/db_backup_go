@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"time"
 
@@ -35,7 +34,6 @@ func (b *backupInfo) Run(db *string) (string, error) {
 	b.date = time.Now().Format("2006-01-02")
 	fileNameNoDate := *db + "_" + b.conf.DB_LABEL
 	fileName := fileNameNoDate + "_" + b.date + ".sql"
-	log.Printf("正在备份：%v", *db)
 
 	var out *[]byte
 	var err error
@@ -119,11 +117,11 @@ func (b *backupInfo) Run(db *string) (string, error) {
 		defer sftpClient.Close()
 
 		up := NewSftpOperater(sftpClient)
-		err = up.Upload(b.conf.BACKUP_SAVE_PATH+"/"+*db+"/"+fileName+".gz", b.conf.REMOTE_PATH)
+		err = up.Upload(b.conf.BACKUP_SAVE_PATH+"/"+*db+"/"+fileName+".gz", b.conf.REMOTE_PATH+"/"+*db, fileName+".gz")
 		if err != nil {
 			return "", err
 		}
 	}
 
-	return fileName, nil
+	return *db, nil
 }

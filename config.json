@@ -1,6 +1,6 @@
 {
     # 目前支持 mysql 和 postgresql
-    "database": "postgresql",
+    "database": "mysql",
 
     # true 正向筛选，false 反向筛选
     "filter_method": true,
@@ -9,18 +9,18 @@
     "backup_save_path": "/home/even/mysql_backup/",
 
     # 版本填写 5.7 或 8.0
-    "DB_VERSION": "8.0",
+    "DB_VERSION": "5.7",
     "DB_HOST": "127.0.0.1",
-    "DB_PORT": 5432,
-    "DB_USER": "postgres",
+    "DB_PORT": 3306,
+    "DB_USER": "root",
     "DB_PASSWORD": "123456",
     "DB_LABEL": "db_15",
 
     # true 开启发送到异机功能，false 关闭发送到异机功能
-    "remote_backup": false,
-    "REMOTE_HOST": "192.168.1.168",
+    "remote_backup": true,
+    "REMOTE_HOST": "192.168.56.15",
     "REMOTE_PORT": 22,
-    "REMOTE_USER": "root",
-    "REMOTE_PASSWORD": "",
-    "REMOTE_PATH": "/backup/"
+    "REMOTE_USER": "even",
+    "REMOTE_PASSWORD": "2333",
+    "REMOTE_PATH": "/home/even/test"
 }
