@@ -2,8 +2,7 @@ package clear
 
 import (
 	"db_backup_go/common"
-	"db_backup_go/modules"
-	"db_backup_go/modules/ssh"
+	"db_backup_go/modules/send"
 	"fmt"
 	"io/fs"
 	"io/ioutil"
@@ -18,12 +17,12 @@ type Clear interface {
 }
 
 type backupFile struct {
-	modules.ConnInfo
+	common.ConnInfo
 	saveDay int
 }
 
 //初始化旧备份清理，传入保存的天数和远端服务器连接信息（ConnInfo结构体）
-func NewBackupClear(saveDay int, sc modules.ConnInfo) *backupFile {
+func NewBackupClear(saveDay int, sc common.ConnInfo) *backupFile {
 	return &backupFile{
 		ConnInfo: sc,
 		saveDay:  saveDay,
@@ -96,7 +95,7 @@ func (bf *backupFile) ClearRemote(dict string) error {
 	cf = cf[bf.saveDay:]
 
 	//删除旧备份
-	cmd := ssh.NewSftpOperater(sftpClient)
+	cmd := send.NewSftpOperater(sftpClient)
 	for _, v := range cf {
 		err := cmd.Remove(dict + "/" + v.Name())
 		if err != nil {

@@ -2,9 +2,8 @@ package run
 
 import (
 	"db_backup_go/common"
-	"db_backup_go/modules"
-	"db_backup_go/modules/dump"
-	"db_backup_go/modules/ssh"
+	"db_backup_go/modules/send"
+	"db_backup_go/shell"
 	"errors"
 	"fmt"
 	"io"
@@ -38,43 +37,15 @@ func (b *backupInfo) Run(db *string) (string, error) {
 	fileNameNoDate := *db + "_" + b.conf.DB_LABEL
 	fileName := fileNameNoDate + "_" + b.date + ".sql"
 
-	var out *[]byte
-	var err error
-	dbi := dump.DBInfo{
-		DBHost:     b.conf.DB_HOST,
-		DBPort:     b.conf.DB_PORT,
-		DBUser:     b.conf.DB_USER,
-		DBPassword: b.conf.DB_PASSWORD,
-	}
-	dbu := dump.NewDBDumpFunc(b.conf.MYSQL_EXEC_PATH, &dbi)
-	if b.conf.DATABASETYPE == "mysql" {
-		if *db == "all" {
-			out, err = dbu.MysqlDumpAll()
-			if err != nil {
-				return "", err
-			}
-		} else {
-			out, err = dbu.MysqlDump(db)
-			if err != nil {
-				return "", err
-			}
-		}
-	} else if b.conf.DATABASETYPE == "postgresql" {
-		if *db == "all" {
-			out, err = dbu.PostgresqlDumpAll()
-			if err != nil {
-				return "", err
-			}
-		} else {
-			out, err = dbu.PostgresqlDump(db)
-			if err != nil {
-				return "", err
-			}
-		}
+	//根据数据库类型选择相应的备份工具
+	dbi := shell.NewSelecter(b.conf.DATABASETYPE, b.conf.MYSQL_EXEC_PATH, b.conf.DB_Version, b.conf.DB_HOST, b.conf.DB_PORT, b.conf.DB_USER, b.conf.DB_PASSWORD)
+	out, err := shell.BackupSelecter(dbi, db)
+	if err != nil {
+		return "", err
 	}
 
 	//压缩并保存备份文件
-	saveFile := modules.NewCompress(out, &fileName)
+	saveFile := common.NewCompress(out, &fileName)
 	buff, err := saveFile.CompressFile()
 	if err != nil {
 		return "", err
@@ -104,9 +75,9 @@ func (b *backupInfo) Run(db *string) (string, error) {
 	}
 
 	// 判断是否开启远程备份功能
-	if b.conf.REMOTE_BACKUP == true {
+	if b.conf.REMOTE_BACKUP {
 		//发送备份文件到远端
-		s := modules.NewSshSocket(b.conf.REMOTE_HOST, b.conf.REMOTE_PORT, b.conf.REMOTE_USER, b.conf.REMOTE_PASSWORD)
+		s := common.NewSshSocket(b.conf.REMOTE_HOST, b.conf.REMOTE_PORT, b.conf.REMOTE_USER, b.conf.REMOTE_PASSWORD)
 		sshClient, err := s.Connect()
 		if err != nil {
 			return "", err
@@ -119,7 +90,7 @@ func (b *backupInfo) Run(db *string) (string, error) {
 		}
 		defer sftpClient.Close()
 
-		up := ssh.NewSftpOperater(sftpClient)
+		up := send.NewSftpOperater(sftpClient)
 		err = up.Upload(b.conf.BACKUP_SAVE_PATH+"/"+*db+"/"+fileName+".gz", b.conf.REMOTE_PATH+"/"+*db, fileName+".gz")
 		if err != nil {
 			return "", err
