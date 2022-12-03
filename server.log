@@ -376,3 +376,35 @@
 2022/12/02 22:45:11 aaa备份开始
 2022/12/02 22:45:11 mysqldump: [Warning] Using a password on the command line interface can be insecure.
 2022/12/02 22:45:12 aaa备份成功
+2022/12/02 23:06:54 aaa备份开始
+2022/12/02 23:06:55 mysqldump: [Warning] Using a password on the command line interface can be insecure.
+2022/12/02 23:06:55 aaa备份成功
+2022/12/02 23:08:28 aaa备份开始
+2022/12/02 23:08:28 bbb备份开始
+2022/12/02 23:08:28 mysqldump: [Warning] Using a password on the command line interface can be insecure.
+2022/12/02 23:08:28 mysqldump: [Warning] Using a password on the command line interface can be insecure.
+2022/12/02 23:08:28 bbb备份成功
+2022/12/02 23:08:28 aaa备份成功
+2022/12/02 23:08:59 all备份开始
+2022/12/02 23:08:59 mysqldump: [Warning] Using a password on the command line interface can be insecure.
+2022/12/02 23:08:59 all备份成功
+2022/12/02 23:12:07 all备份开始
+2022/12/02 23:12:07 mysqldump: [Warning] Using a password on the command line interface can be insecure.
+2022/12/02 23:12:07 all备份成功
+2022/12/03 16:38:10 stderr: exit status 1
+2022/12/03 16:42:42 ALL数据库备份失败：exit status 1:mysql: [Warning] Using a password on the command line interface can be insecure.
+ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1:3306' (111)
+2022/12/03 16:43:59 all备份开始
+2022/12/03 16:43:59 all备份失败：ALL数据库备份失败：%!w(<nil>):mysql: [Warning] Using a password on the command line interface can be insecure.
+mysqldump: [Warning] Using a password on the command line interface can be insecure.
+mysqldump: Couldn't execute 'SELECT COLUMN_NAME,                       JSON_EXTRACT(HISTOGRAM, '$."number-of-buckets-specified"')                FROM information_schema.COLUMN_STATISTICS                WHERE SCHEMA_NAME = 'mysql' AND TABLE_NAME = 'columns_priv';': Unknown table 'COLUMN_STATISTICS' in information_schema (1109)
+2022/12/03 16:47:50 all备份开始
+2022/12/03 16:47:58 all备份失败：ALL数据库备份失败：%!w(<nil>):mysql: [Warning] Using a password on the command line interface can be insecure.
+mysqldump: [Warning] Using a password on the command line interface can be insecure.
+mysqldump: Couldn't execute 'SELECT COLUMN_NAME,                       JSON_EXTRACT(HISTOGRAM, '$."number-of-buckets-specified"')                FROM information_schema.COLUMN_STATISTICS                WHERE SCHEMA_NAME = 'mysql' AND TABLE_NAME = 'columns_priv';': Unknown table 'COLUMN_STATISTICS' in information_schema (1109)
+2022/12/03 16:48:26 all备份开始
+2022/12/03 16:48:50 all备份开始
+2022/12/03 16:50:57 all备份开始
+2022/12/03 16:57:11 all备份开始
+2022/12/03 16:57:21 mysql: [Warning] Using a password on the command line interface can be insecure.
+2022/12/03 16:57:25 all备份成功

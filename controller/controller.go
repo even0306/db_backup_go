@@ -3,6 +3,9 @@ package controller
 import (
 	"db_backup_go/common"
 	"db_backup_go/modules"
+	"db_backup_go/modules/clear"
+	"db_backup_go/modules/database"
+	"db_backup_go/modules/run"
 	"log"
 	"sync"
 )
@@ -42,7 +45,7 @@ func (fi fileInfo) Controller() error {
 	}
 
 	//对比出要备份的数据库列表
-	cp := modules.NewCompartor(conf, dbsData)
+	cp := database.NewCompartor(conf, dbsData)
 	preDBS, err := cp.Comparison()
 	if err != nil {
 		return err
@@ -58,7 +61,7 @@ func (fi fileInfo) Controller() error {
 
 	var wg sync.WaitGroup
 	limiter := make(chan bool, 4)
-	bk := modules.NewBackuper(conf)
+	bk := run.NewBackuper(conf)
 	for _, v := range *preDBS {
 		log.Printf("%v备份开始", v)
 		wg.Add(1)
@@ -78,7 +81,7 @@ func (fi fileInfo) Controller() error {
 	//按天保留最新7份备份，删除之前的备份
 	sshSocket := modules.NewSshSocket(conf.REMOTE_HOST, conf.REMOTE_PORT, conf.REMOTE_USER, conf.REMOTE_PASSWORD)
 
-	rmFile := modules.NewBackupClear(conf.SAVE_DAY, *sshSocket)
+	rmFile := clear.NewBackupClear(conf.SAVE_DAY, *sshSocket)
 	rmFile.ClearLocal(conf.BACKUP_SAVE_PATH)
 	rmFile.ClearRemote(conf.REMOTE_PATH)
 
