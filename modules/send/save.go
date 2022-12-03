@@ -50,7 +50,7 @@ func (op *sftpInfo) Upload(src string, dst string, fn string) error {
 	for {
 		n, err := srcValue.Read(buf)
 		if err != nil {
-			if errors.Is(err, io.EOF) == false {
+			if !errors.Is(err, io.EOF) {
 				return fmt.Errorf("读取本地文件错误：%w", err)
 			} else {
 				break

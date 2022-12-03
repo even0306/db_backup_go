@@ -25,29 +25,6 @@ func NewCompartor(conf *common.ConfigFile, dbs *[]string) *comparisonInfo {
 
 func (c *comparisonInfo) Comparison() (*[]string, error) {
 	//获取所有数据库名
-	// var err error
-	// var allDbs *[]string
-	// dbi := shell.DBInfo{
-	// 	DBVersion:  c.conf.DB_Version,
-	// 	DBHost:     c.conf.DB_HOST,
-	// 	DBPort:     c.conf.DB_PORT,
-	// 	DBUser:     c.conf.DB_USER,
-	// 	DBPassword: c.conf.DB_PASSWORD,
-	// }
-	// dbu := shell.NewDBDumpFunc(c.conf.MYSQL_EXEC_PATH, &dbi)
-	// if c.conf.DATABASETYPE == "mysql" {
-	// 	allDbs, err = dbu.GetMysqlDBList()
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// } else if c.conf.DATABASETYPE == "postgresql" {
-	// 	allDbs, err = dbu.GetPostgresqlDBList()
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// }
-
-	//获取所有数据库名
 	dbi := shell.NewSelecter(c.conf.DATABASETYPE, c.conf.MYSQL_EXEC_PATH, c.conf.DB_Version, c.conf.DB_HOST, c.conf.DB_PORT, c.conf.DB_USER, c.conf.DB_PASSWORD)
 	allDbs, err := shell.DBListSelecter(dbi)
 	if err != nil {
