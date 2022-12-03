@@ -32,10 +32,12 @@ func (op *sftpInfo) Upload(src string, dst string, fn string) error {
 	if err != nil {
 		return fmt.Errorf("发送到远程时，打开本地文件失败：%w", err)
 	}
+
 	err = op.sftpClient.MkdirAll(dst)
 	if err != nil {
 		return fmt.Errorf("目标机器创建文件夹失败，请检查权限：%w", err)
 	}
+
 	dstValue, err := op.sftpClient.Create(dst + "/" + fn)
 	if err != nil {
 		return fmt.Errorf("创建远程文件失败：%w", err)
