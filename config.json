@@ -8,7 +8,7 @@
     "mysql_exec_path": "/usr/bin/",
     "backup_save_path": "/home/even/mysql_backup/",
 
-    "DB_VERSION": "8.0",
+    "DB_VERSION": "14.0",
     "DB_HOST": "127.0.0.1",
     "DB_PORT": 5432,
     "DB_USER": "postgres",

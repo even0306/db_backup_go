@@ -26,7 +26,7 @@ func NewSelecter(dbType string, p string, ver string, host string, port int, use
 func BackupSelecter(b *DBInfo, db *string) (*[]byte, error) {
 	var out *[]byte
 	var err error
-	if b.dbType == "mysql" {
+	if b.dbType == "mysql" || b.dbType == "mariadb" {
 		if *db == "all" {
 			out, err = MysqlDumpAll(b)
 			if err != nil {
@@ -55,7 +55,7 @@ func BackupSelecter(b *DBInfo, db *string) (*[]byte, error) {
 }
 
 func DBListSelecter(b *DBInfo) (*[]string, error) {
-	if b.dbType == "mysql" {
+	if b.dbType == "mysql" || b.dbType == "mariadb" {
 		allDbs, err := GetMysqlDBList(b)
 		if err != nil {
 			return nil, err
