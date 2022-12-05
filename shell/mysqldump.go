@@ -14,7 +14,7 @@ import (
 func MysqlDump(info *DBInfo, db *string) (*[]byte, error) {
 	var cmd *exec.Cmd
 	flag, _ := regexp.MatchString("8.0.*", info.DBVersion)
-	if flag {
+	if flag && info.dbType == "mysql" {
 		cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--skip-lock-tables", *db)
 	} else {
 		cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-E", "-R", "--triggers", "--skip-lock-tables", *db)
@@ -45,7 +45,7 @@ func MysqlDump(info *DBInfo, db *string) (*[]byte, error) {
 func MysqlDumpAll(info *DBInfo) (*[]byte, error) {
 	var cmd *exec.Cmd
 	flag, _ := regexp.MatchString("8.0.*", info.DBVersion)
-	if flag {
+	if flag && info.dbType == "mysql" {
 		cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--skip-lock-tables", "--all-databases")
 	} else {
 		cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-E", "-R", "--triggers", "--skip-lock-tables", "--all-databases")
