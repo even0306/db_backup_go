@@ -1,4 +1,11 @@
-{
+package common
+
+import (
+	"os"
+)
+
+func CreateConfig() error {
+	defaultConfig := `{
 	# 目前支持 mysql 和 postgresql
 	"database": "postgresql",
 
@@ -22,4 +29,36 @@
 	"REMOTE_USER": "even",
 	"REMOTE_PASSWORD": "2333",
 	"REMOTE_PATH": "/app/backup"
+}
+`
+
+	dc, err := os.OpenFile("./config.json", os.O_CREATE|os.O_RDWR, 0666)
+	if err != nil {
+		return err
+	}
+	defer dc.Close()
+
+	_, err = dc.WriteString(defaultConfig)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CreateDBS() error {
+	defaultDbs := "all"
+
+	dd, err := os.OpenFile("./dbs.txt", os.O_CREATE|os.O_RDWR, 0666)
+	if err != nil {
+		return err
+	}
+	defer dd.Close()
+
+	_, err = dd.WriteString(defaultDbs)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
