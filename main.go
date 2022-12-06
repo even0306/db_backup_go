@@ -1,6 +1,7 @@
 package main
 
 import (
+	"db_backup_go/common"
 	"db_backup_go/controller"
 	"flag"
 	"log"
@@ -37,10 +38,18 @@ func main() {
 			}
 		}
 		if os.IsNotExist(err) {
-			log.Panic("找不到dbs.txt")
+			err := common.CreateDBS()
+			if err != nil {
+				log.Panic(err)
+			}
+			main()
 		}
 	}
 	if os.IsNotExist(err) {
-		log.Panic("找不到config.json")
+		err := common.CreateConfig()
+		if err != nil {
+			log.Panic(err)
+		}
+		main()
 	}
 }
