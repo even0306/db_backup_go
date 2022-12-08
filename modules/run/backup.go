@@ -2,6 +2,7 @@ package run
 
 import (
 	"db_backup_go/common"
+	"db_backup_go/config"
 	"db_backup_go/modules/send"
 	"db_backup_go/shell"
 	"errors"
@@ -18,13 +19,13 @@ type Backup interface {
 }
 
 type backupInfo struct {
-	conf *common.ConfigFile
+	conf *config.ConfigFile
 
 	date string
 }
 
 //初始化备份工具，传入*common.ConfigFile类型的配置数据
-func NewBackuper(conf *common.ConfigFile) *backupInfo {
+func NewBackuper(conf *config.ConfigFile) *backupInfo {
 	return &backupInfo{
 		conf: conf,
 		date: "",

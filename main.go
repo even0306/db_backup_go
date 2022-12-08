@@ -3,15 +3,15 @@ package main
 import (
 	"db_backup_go/common"
 	"db_backup_go/controller"
+	"db_backup_go/logging"
 	"flag"
-	"log"
 	"os"
 	"path/filepath"
 )
 
 //程序主入口
 func main() {
-	version := "1.1.8"
+	version := "1.1.9"
 	printVersion := flag.Bool("version", false, "[--version]")
 	flag.Parse()
 	if *printVersion {
@@ -19,14 +19,16 @@ func main() {
 		os.Exit(0)
 	}
 
-	logfile, err := os.OpenFile("server.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
-	log.SetOutput(logfile)
-	if err != nil {
-		log.Panicf("打开日志文件失败：%v", err)
-	}
-
+	//找到执行程序所在位置
 	ex, err := os.Executable()
+	if err != nil {
+		logging.Logger.Panic(err)
+	}
 	exPath := filepath.Dir(ex)
+
+	//初始化日志
+	logging.NewLogger(exPath + "/server.log")
+
 	_, err = os.Stat(exPath + "/config.json")
 	if err == nil {
 		_, err = os.Stat(exPath + "/dbs.txt")
@@ -34,13 +36,13 @@ func main() {
 			c := controller.NewController(exPath+"/config.json", exPath+"/dbs.txt")
 			err = c.Controller()
 			if err != nil {
-				log.Panic(err)
+				logging.Logger.Panic(err)
 			}
 		}
 		if os.IsNotExist(err) {
 			err := common.CreateDBS()
 			if err != nil {
-				log.Panic(err)
+				logging.Logger.Panic(err)
 			}
 			main()
 		}
@@ -48,7 +50,7 @@ func main() {
 	if os.IsNotExist(err) {
 		err := common.CreateConfig()
 		if err != nil {
-			log.Panic(err)
+			logging.Logger.Panic(err)
 		}
 		main()
 	}

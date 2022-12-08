@@ -1,9 +1,9 @@
 package database
 
 import (
-	"db_backup_go/common"
+	"db_backup_go/config"
+	"db_backup_go/logging"
 	"db_backup_go/shell"
-	"log"
 	"strings"
 )
 
@@ -12,11 +12,11 @@ type Comparison interface {
 }
 
 type comparisonInfo struct {
-	conf *common.ConfigFile
+	conf *config.ConfigFile
 	dbs  *[]string
 }
 
-func NewCompartor(conf *common.ConfigFile, dbs *[]string) *comparisonInfo {
+func NewCompartor(conf *config.ConfigFile, dbs *[]string) *comparisonInfo {
 	return &comparisonInfo{
 		conf: conf,
 		dbs:  dbs,
@@ -63,7 +63,7 @@ func (c *comparisonInfo) Comparison() (*[]string, error) {
 	}
 
 	for _, v := range errDBS {
-		log.Printf("数据库 %v 不存在，备份失败", v)
+		logging.Logger.Printf("数据库 %v 不存在，备份失败", v)
 	}
 
 	return &preDBS, nil
