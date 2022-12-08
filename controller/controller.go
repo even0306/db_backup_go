@@ -2,6 +2,7 @@ package controller
 
 import (
 	"db_backup_go/common"
+	"db_backup_go/config"
 	"db_backup_go/logging"
 	"db_backup_go/modules/clear"
 	"db_backup_go/modules/database"
@@ -31,13 +32,13 @@ func NewController(conf string, dbs string) *fileInfo {
 //备份主程序，返回 error
 func (fi fileInfo) Controller() error {
 	//获取配置文件
-	conf := common.NewConfig(fi.confFile)
+	conf := config.NewConfig(fi.confFile)
 	err := conf.Read()
 	if err != nil {
 		return err
 	}
 	//获取要使用的数据库列表
-	dbs := common.NewDBList(fi.dbsFile)
+	dbs := config.NewDBList(fi.dbsFile)
 	dbsData, err := dbs.Read()
 	if err != nil {
 		return err
