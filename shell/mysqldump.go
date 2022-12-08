@@ -3,8 +3,8 @@ package shell
 import (
 	"bufio"
 	"bytes"
+	"db_backup_go/logging"
 	"fmt"
-	"log"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -32,7 +32,7 @@ func MysqlDump(info *DBInfo, db *string) (*[]byte, error) {
 		}
 		warn, err := regexp.Match("[Warning]", t)
 		if warn {
-			log.Print(string(t))
+			logging.Logger.Print(string(t))
 		} else {
 			return nil, fmt.Errorf(*db+" 数据库备份失败：%w:%v", err, stderr.String())
 		}
@@ -63,7 +63,7 @@ func MysqlDumpAll(info *DBInfo) (*[]byte, error) {
 		}
 		warn, err := regexp.Match("[Warning]", t)
 		if warn {
-			log.Print(string(t))
+			logging.Logger.Print(string(t))
 		} else {
 			return nil, fmt.Errorf("ALL数据库备份失败：%w:%v", err, stderr.String())
 		}

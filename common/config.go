@@ -1,10 +1,10 @@
 package common
 
 import (
+	"db_backup_go/logging"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"reflect"
 	"strings"
 )
@@ -107,7 +107,7 @@ func (c *ConfigFile) Read() error {
 	v := reflect.ValueOf(*c)
 	for i := 1; i < v.NumField(); i++ {
 		if v.Field(i).Interface() == "" {
-			log.Panicf("%v 在配置文件中没有配置，或者缺少值", k.Field(i).Tag.Get("json"))
+			logging.Logger.Panicf("%v 在配置文件中没有配置，或者缺少值", k.Field(i).Tag.Get("json"))
 		}
 	}
 	return nil

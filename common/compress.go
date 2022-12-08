@@ -3,8 +3,8 @@ package common
 import (
 	"bytes"
 	"compress/gzip"
+	"db_backup_go/logging"
 	"fmt"
-	"log"
 )
 
 type Compress interface {
@@ -36,7 +36,7 @@ func (file *mygzip) CompressFile() (*bytes.Buffer, error) {
 	defer func() {
 		err := gwf.Close()
 		if err != nil {
-			log.Panicf("压缩数据写入缓存关闭失败：%v", err)
+			logging.Logger.Panicf("压缩数据写入缓存关闭失败：%v", err)
 		}
 	}()
 

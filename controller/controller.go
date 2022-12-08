@@ -2,10 +2,10 @@ package controller
 
 import (
 	"db_backup_go/common"
+	"db_backup_go/logging"
 	"db_backup_go/modules/clear"
 	"db_backup_go/modules/database"
 	"db_backup_go/modules/run"
-	"log"
 	"sync"
 )
 
@@ -62,13 +62,13 @@ func (fi fileInfo) Controller() error {
 	limiter := make(chan bool, 4)
 	bk := run.NewBackuper(conf)
 	for _, v := range *preDBS {
-		log.Printf("%v备份开始", v)
+		logging.Logger.Printf("%v备份开始", v)
 		wg.Add(1)
 		limiter <- true
 		go func(db string) {
 			fileName, err := bk.Run(&db)
 			if err != nil {
-				log.Panicf("%v备份失败：%v", db, err)
+				logging.Logger.Panicf("%v备份失败：%v", db, err)
 			}
 			defer wg.Done()
 			responseChannel <- fileName
@@ -85,7 +85,7 @@ func (fi fileInfo) Controller() error {
 	rmFile.ClearRemote(conf.REMOTE_PATH)
 
 	for _, v := range fi.fileNameList {
-		log.Printf("%v备份成功", v)
+		logging.Logger.Printf("%v备份成功", v)
 	}
 	return nil
 }
