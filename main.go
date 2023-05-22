@@ -1,13 +1,18 @@
 package main
 
 import (
-	"db_backup_go/common"
 	"db_backup_go/controller"
 	"db_backup_go/logging"
+	"embed"
 	"flag"
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 )
+
+//go:embed assets
+var f embed.FS
 
 //程序主入口
 func main() {
@@ -39,19 +44,34 @@ func main() {
 				logging.Logger.Panic(err)
 			}
 		}
+
+		// 判断 dbs.txt 配置文件是否存在，不存在自动生成
 		if os.IsNotExist(err) {
-			err := common.CreateDBS()
+			fv, err := f.ReadFile("assets/dbs.txt")
 			if err != nil {
-				logging.Logger.Panic(err)
+				panic(err)
 			}
-			main()
+			rf, err := os.Create("dbs.txt")
+			if err != nil {
+				panic(err)
+			}
+			defer rf.Close()
+			io.WriteString(rf, string(fv))
+			fmt.Print("未找到配置文件 dbs.txt，已创建默认配置，默认备份所有库。")
 		}
 	}
+	// 判断 config.json 配置文件是否存在，不存在自动生成
 	if os.IsNotExist(err) {
-		err := common.CreateConfig()
+		fv, err := f.ReadFile("assets/config.json")
 		if err != nil {
-			logging.Logger.Panic(err)
+			panic(err)
 		}
-		main()
+		rf, err := os.Create("config.json")
+		if err != nil {
+			panic(err)
+		}
+		defer rf.Close()
+		io.WriteString(rf, string(fv))
+		fmt.Print("未找到配置文件 config.json，已创建默认配置，请进行修改后重新执行。")
 	}
 }
