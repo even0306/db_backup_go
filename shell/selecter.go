@@ -1,5 +1,7 @@
 package shell
 
+import "db_backup_go/logging"
+
 type DBInfo struct {
 	dbType     string
 	ExecPath   string
@@ -22,7 +24,7 @@ func NewSelecter(dbType string, p string, ver string, host string, port int, use
 	}
 }
 
-//备份工具选择器，传入 *common.ConfigFile 和要备份的库名指针，返回备份出的字节流指针和报错信息
+// 备份工具选择器，传入 *common.ConfigFile 和要备份的库名指针，返回备份出的字节流指针和报错信息
 func BackupSelecter(b *DBInfo, db *string) (*[]byte, error) {
 	var out *[]byte
 	var err error
@@ -50,6 +52,8 @@ func BackupSelecter(b *DBInfo, db *string) (*[]byte, error) {
 				return nil, err
 			}
 		}
+	} else {
+		logging.Logger.Panic("未知的数据库类型，请重新检查 config.json 文件配置")
 	}
 	return out, nil
 }
@@ -67,6 +71,8 @@ func DBListSelecter(b *DBInfo) (*[]string, error) {
 			return nil, err
 		}
 		return allDbs, nil
+	} else {
+		logging.Logger.Panic("未知的数据库类型，请重新检查 config.json 文件配置")
 	}
 	return nil, nil
 }
