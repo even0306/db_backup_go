@@ -16,7 +16,7 @@
 	"DB_LABEL": "db_16",
 
 	# true 开启发送到异机功能，false 关闭发送到异机功能
-	"remote_backup": true,
+	"remote_backup": false,
 	"REMOTE_HOST": "192.168.56.15",
 	"REMOTE_PORT": 22,
 	"REMOTE_USER": "even",

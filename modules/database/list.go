@@ -62,8 +62,10 @@ func (c *comparisonInfo) Comparison() (*[]string, error) {
 		}
 	}
 
-	for _, v := range errDBS {
-		logging.Logger.Printf("数据库 %v 不存在，备份失败", v)
+	if !allFlag {
+		for _, v := range errDBS {
+			logging.Logger.Printf("数据库名 %v 不存在", v)
+		}
 	}
 
 	return &preDBS, nil
