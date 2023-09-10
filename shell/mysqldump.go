@@ -96,9 +96,17 @@ func MysqlDumpAll(info *DBInfo, dst string, filename string, single int) error {
 	var cmd *exec.Cmd
 	flag, _ := regexp.MatchString("8.0.*", info.DBVersion)
 	if flag {
-		cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--skip-lock-tables", "--all-databases")
+		if single == 1 {
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--single-transaction", "--all-databases")
+		} else {
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--all-databases")
+		}
 	} else {
-		cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-E", "-R", "--triggers", "--skip-lock-tables", "--all-databases")
+		if single == 1 {
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-E", "-R", "--triggers", "--single-transaction", "--all-databases")
+		} else {
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-E", "-R", "--triggers", "--all-databases")
+		}
 	}
 
 	var stderr bytes.Buffer
