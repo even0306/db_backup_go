@@ -3,24 +3,26 @@ package shell
 import "db_backup_go/logging"
 
 type DBInfo struct {
-	dbType     string
-	ExecPath   string
-	DBVersion  string
-	DBHost     string
-	DBPort     int
-	DBUser     string
-	DBPassword string
+	dbType            string
+	ExecPath          string
+	DBVersion         string
+	DBHost            string
+	DBPort            int
+	DBUser            string
+	DBPassword        string
+	singleTransaction int
 }
 
-func NewSelecter(dbType string, p string, ver string, host string, port int, user string, pass string) *DBInfo {
+func NewSelecter(dbType string, p string, ver string, host string, port int, user string, pass string, single int) *DBInfo {
 	return &DBInfo{
-		dbType:     dbType,
-		ExecPath:   p,
-		DBVersion:  ver,
-		DBHost:     host,
-		DBPort:     port,
-		DBUser:     user,
-		DBPassword: pass,
+		dbType:            dbType,
+		ExecPath:          p,
+		DBVersion:         ver,
+		DBHost:            host,
+		DBPort:            port,
+		DBUser:            user,
+		DBPassword:        pass,
+		singleTransaction: single,
 	}
 }
 

@@ -13,17 +13,18 @@ type ReadConfig interface {
 	Read() error
 }
 
-//基础配置
+// 基础配置
 type ConfigFile struct {
 	configFile string
 
 	DATABASETYPE string `json:"database"`
 
-	FILTER_METHOD    bool   `json:"FILTER_METHOD"`    //正向匹配 true，反向匹配 false
-	REMOTE_BACKUP    bool   `json:"REMOTE_BACKUP"`    //开启向异机备份 true，关闭向异机备份 false
-	SAVE_DAY         int    `json:"SAVE_DAY"`         //保存备份的天数
-	MYSQL_EXEC_PATH  string `json:"MYSQL_EXEC_PATH"`  //mysql执行文件所在目录
-	BACKUP_SAVE_PATH string `json:"BACKUP_SAVE_PATH"` //备份在本地保存的路径
+	FILTER_METHOD      bool   `json:"FILTER_METHOD"`    //正向匹配 true，反向匹配 false
+	REMOTE_BACKUP      bool   `json:"REMOTE_BACKUP"`    //开启向异机备份 true，关闭向异机备份 false
+	SAVE_DAY           int    `json:"SAVE_DAY"`         //保存备份的天数
+	MYSQL_EXEC_PATH    string `json:"MYSQL_EXEC_PATH"`  //mysql执行文件所在目录
+	BACKUP_SAVE_PATH   string `json:"BACKUP_SAVE_PATH"` //备份在本地保存的路径
+	SINGLE_TRANSACTION int    `json:"SINGLE_TRANSACTION"`
 
 	DB_Version  string `json:"DB_VERSION"`
 	DB_HOST     string `json:"DB_HOST"`
@@ -42,28 +43,29 @@ type ConfigFile struct {
 // 初始化读取配置功能，传入string类型文件，返回*ConfigFile类型的结构体指针
 func NewConfig(f string) *ConfigFile {
 	return &ConfigFile{
-		configFile:       f,
-		DATABASETYPE:     "mysql",
-		FILTER_METHOD:    true,
-		REMOTE_BACKUP:    false,
-		SAVE_DAY:         7,
-		MYSQL_EXEC_PATH:  "/bin/",
-		BACKUP_SAVE_PATH: "./",
-		DB_Version:       "8.0",
-		DB_HOST:          "127.0.0.1",
-		DB_PORT:          3306,
-		DB_USER:          "root",
-		DB_PASSWORD:      "123456",
-		DB_LABEL:         "127.0.0.1",
-		REMOTE_HOST:      "",
-		REMOTE_PORT:      0,
-		REMOTE_USER:      "",
-		REMOTE_PASSWORD:  "",
-		REMOTE_PATH:      "",
+		configFile:         f,
+		DATABASETYPE:       "mysql",
+		FILTER_METHOD:      true,
+		REMOTE_BACKUP:      false,
+		SAVE_DAY:           7,
+		MYSQL_EXEC_PATH:    "/bin/",
+		BACKUP_SAVE_PATH:   "./",
+		SINGLE_TRANSACTION: 0,
+		DB_Version:         "8.0",
+		DB_HOST:            "127.0.0.1",
+		DB_PORT:            3306,
+		DB_USER:            "root",
+		DB_PASSWORD:        "123456",
+		DB_LABEL:           "127.0.0.1",
+		REMOTE_HOST:        "",
+		REMOTE_PORT:        0,
+		REMOTE_USER:        "",
+		REMOTE_PASSWORD:    "",
+		REMOTE_PATH:        "",
 	}
 }
 
-//读取配置文件，返回error错误信息
+// 读取配置文件，返回error错误信息
 func (c *ConfigFile) Read() error {
 	//读取配置文件
 	bf, err := ioutil.ReadFile(c.configFile)
@@ -97,7 +99,7 @@ func (c *ConfigFile) Read() error {
 		return fmt.Errorf("配置文件内容转进程序失败：%w", err)
 	}
 
-	if c.REMOTE_BACKUP == false {
+	if !c.REMOTE_BACKUP {
 		(*c).REMOTE_HOST = "1"
 		c.REMOTE_USER = "1"
 		(*c).REMOTE_PASSWORD = "1"
