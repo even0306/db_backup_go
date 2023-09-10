@@ -3,40 +3,38 @@ package shell
 import "db_backup_go/logging"
 
 type DBInfo struct {
-	dbType            string
-	ExecPath          string
-	DBVersion         string
-	DBHost            string
-	DBPort            int
-	DBUser            string
-	DBPassword        string
-	singleTransaction int
+	dbType     string
+	ExecPath   string
+	DBVersion  string
+	DBHost     string
+	DBPort     int
+	DBUser     string
+	DBPassword string
 }
 
-func NewSelecter(dbType string, p string, ver string, host string, port int, user string, pass string, single int) *DBInfo {
+func NewSelecter(dbType string, p string, ver string, host string, port int, user string, pass string) *DBInfo {
 	return &DBInfo{
-		dbType:            dbType,
-		ExecPath:          p,
-		DBVersion:         ver,
-		DBHost:            host,
-		DBPort:            port,
-		DBUser:            user,
-		DBPassword:        pass,
-		singleTransaction: single,
+		dbType:     dbType,
+		ExecPath:   p,
+		DBVersion:  ver,
+		DBHost:     host,
+		DBPort:     port,
+		DBUser:     user,
+		DBPassword: pass,
 	}
 }
 
 // 备份工具选择器，传入 *common.ConfigFile 和要备份的库名指针，返回备份出的字节流指针和报错信息
-func BackupSelecter(b *DBInfo, db *string, dst string, filename *string) error {
+func BackupSelecter(b *DBInfo, db *string, dst string, filename *string, single int) error {
 	var err error
 	if b.dbType == "mysql" || b.dbType == "mariadb" {
 		if *db == "all" {
-			err = MysqlDumpAll(b, dst, *filename)
+			err = MysqlDumpAll(b, dst, *filename, single)
 			if err != nil {
 				return err
 			}
 		} else {
-			err = MysqlDump(b, db, dst, *filename)
+			err = MysqlDump(b, db, dst, *filename, single)
 			if err != nil {
 				return err
 			}

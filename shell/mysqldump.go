@@ -14,17 +14,17 @@ import (
 )
 
 // 使用mysqldump备份mysql数据库，传入DBInfo结构体和要备份的数据库名指针，返回错误
-func MysqlDump(info *DBInfo, db *string, dst string, filename string) error {
+func MysqlDump(info *DBInfo, db *string, dst string, filename string, single int) error {
 	var cmd *exec.Cmd
 	flag, _ := regexp.MatchString("8.0.*", info.DBVersion)
 	if flag {
-		if info.singleTransaction == 1 {
+		if single == 1 {
 			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", "--single-transaction", *db)
 		} else {
 			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "--column-statistics=0", "-E", "-R", "--triggers", *db)
 		}
 	} else {
-		if info.singleTransaction == 1 {
+		if single == 1 {
 			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-E", "-R", "--triggers", "--single-transaction", *db)
 		} else {
 			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-E", "-R", "--triggers", *db)
@@ -92,7 +92,7 @@ func MysqlDump(info *DBInfo, db *string, dst string, filename string) error {
 }
 
 // 使用mysqldump备份mysql数据库，传入DBInfo结构体，返回错误
-func MysqlDumpAll(info *DBInfo, dst string, filename string) error {
+func MysqlDumpAll(info *DBInfo, dst string, filename string, single int) error {
 	var cmd *exec.Cmd
 	flag, _ := regexp.MatchString("8.0.*", info.DBVersion)
 	if flag {
