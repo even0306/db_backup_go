@@ -58,7 +58,7 @@ func (b *backupInfo) Run(db *string) (string, error) {
 		defer sftpClient.Close()
 
 		up := send.NewSftpOperater(sftpClient)
-		err = up.Upload(b.conf.BACKUP_SAVE_PATH+"/"+*db+"/"+fileName+".gz", b.conf.REMOTE_PATH+"/"+*db, fileName+".gz")
+		err = up.Upload(b.conf.BACKUP_SAVE_PATH+"/"+*db+"/"+fileName, b.conf.REMOTE_PATH+"/"+*db, fileName)
 		if err != nil {
 			return "", err
 		}
