@@ -21,7 +21,7 @@ type backupFile struct {
 	saveDay int
 }
 
-//初始化旧备份清理，传入保存的天数和远端服务器连接信息（ConnInfo结构体）
+// 初始化旧备份清理，传入保存的天数和远端服务器连接信息（ConnInfo结构体）
 func NewBackupClear(saveDay int, sc common.ConnInfo) *backupFile {
 	return &backupFile{
 		ConnInfo: sc,
@@ -29,7 +29,7 @@ func NewBackupClear(saveDay int, sc common.ConnInfo) *backupFile {
 	}
 }
 
-//清理本地旧备份文件，传入本地路径，返回error
+// 清理本地旧备份文件，传入本地路径，返回error
 func (bf *backupFile) ClearLocal(dict string) error {
 	//确认要保留的文件
 	fsDict, err := ioutil.ReadDir(dict)
@@ -68,7 +68,7 @@ func (bf *backupFile) ClearLocal(dict string) error {
 	return nil
 }
 
-//清理远端旧备份文件，传入远端机器路径，返回error
+// 清理远端旧备份文件，传入远端机器路径，返回error
 func (bf *backupFile) ClearRemote(dict string) error {
 	//确认要保留的文件
 	sshClient, err := bf.Connect()
@@ -87,7 +87,15 @@ func (bf *backupFile) ClearRemote(dict string) error {
 	if err != nil {
 		return fmt.Errorf("读取远程目录失败：%w", err)
 	}
-	cf := common.SortByTime(fsDict)
+
+	fsPath := dict + "/" + fsDict[0].Name()
+
+	fileList, err := sftpClient.ReadDir(fsPath)
+	if err != nil {
+		return fmt.Errorf("读取远程目录失败：%w", err)
+	}
+
+	cf := common.SortByTime(fileList)
 	if len(cf) < bf.saveDay {
 		bf.saveDay = len(cf)
 	}
@@ -97,7 +105,7 @@ func (bf *backupFile) ClearRemote(dict string) error {
 	//删除旧备份
 	cmd := send.NewSftpOperater(sftpClient)
 	for _, v := range cf {
-		err := cmd.Remove(dict + "/" + v.Name())
+		err := cmd.Remove(dict + "/" + fsDict[0].Name() + v.Name())
 		if err != nil {
 			return fmt.Errorf("删除远程目录文件失败：%w", err)
 		}
