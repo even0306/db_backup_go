@@ -112,5 +112,8 @@ func (c *ConfigFile) Read() error {
 			logging.Logger.Panicf("%v 在配置文件中没有配置，或者缺少值", k.Field(i).Tag.Get("json"))
 		}
 	}
+	if c.SAVE_DAY < 1 {
+		logging.Logger.Panicf("SAVE_DAY不可小于1")
+	}
 	return nil
 }
