@@ -20,7 +20,7 @@ type fileInfo struct {
 	fileNameList []string
 }
 
-//初始化控制器，传入配置文件和数据库列表文件，返回 *fileInfo 结构体实例
+// 初始化控制器，传入配置文件和数据库列表文件，返回 *fileInfo 结构体实例
 func NewController(conf string, dbs string) *fileInfo {
 	return &fileInfo{
 		confFile:     conf,
@@ -29,7 +29,7 @@ func NewController(conf string, dbs string) *fileInfo {
 	}
 }
 
-//备份主程序，返回 error
+// 备份主程序，返回 error
 func (fi fileInfo) Controller() error {
 	//获取配置文件
 	conf := config.NewConfig(fi.confFile)
@@ -56,6 +56,7 @@ func (fi fileInfo) Controller() error {
 	go func(fl *[]string) {
 		for v := range responseChannel {
 			*fl = append(*fl, v)
+			logging.Logger.Printf("%v备份完成", v)
 		}
 	}(&fi.fileNameList)
 
@@ -79,14 +80,25 @@ func (fi fileInfo) Controller() error {
 	wg.Wait()
 
 	//按天保留最新7份备份，删除之前的备份
+	logging.Logger.Printf("开始清理%v天前的备份", conf.SAVE_DAY)
 	sshSocket := common.NewSshSocket(conf.REMOTE_HOST, conf.REMOTE_PORT, conf.REMOTE_USER, conf.REMOTE_PASSWORD)
-
 	rmFile := clear.NewBackupClear(conf.SAVE_DAY, *sshSocket)
-	rmFile.ClearLocal(conf.BACKUP_SAVE_PATH)
-	rmFile.ClearRemote(conf.REMOTE_PATH)
 
-	for _, v := range fi.fileNameList {
-		logging.Logger.Printf("%v备份成功", v)
+	logging.Logger.Println("开始清理本地备份")
+	err = rmFile.ClearLocal(conf.BACKUP_SAVE_PATH)
+	if err != nil {
+		return err
+	} else {
+		logging.Logger.Println("本地备份清理完成")
 	}
+
+	logging.Logger.Println("开始清理远程备份")
+	err = rmFile.ClearRemote(conf.REMOTE_PATH)
+	if err != nil {
+		return err
+	} else {
+		logging.Logger.Println("远程备份清理完成")
+	}
+
 	return nil
 }

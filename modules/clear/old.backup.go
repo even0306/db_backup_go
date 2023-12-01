@@ -66,6 +66,15 @@ func (bf *backupFile) ClearLocal(dict string) error {
 				return fmt.Errorf("旧备份文件删除失败：%w", err)
 			}
 		}
+
+		//检查是否还存在指定份数的备份
+		fsDict, err := ioutil.ReadDir(dict)
+		if err != nil {
+			return fmt.Errorf("读取目录失败：%w", err)
+		}
+		if len(fsDict) < bf.saveDay {
+			return fmt.Errorf("%v备份不足%v份，请检查", v, bf.saveDay)
+		}
 	}
 	return nil
 }
@@ -109,11 +118,20 @@ func (bf *backupFile) ClearRemote(dict string) error {
 
 		//删除旧备份
 		cmd := send.NewSftpOperater(sftpClient)
-		for _, v := range cf {
-			err := cmd.Remove(dict + "/" + fsDict[0].Name() + "/" + v.Name())
+		for _, f := range cf {
+			err := cmd.Remove(fsPath + "/" + f.Name())
 			if err != nil {
 				return fmt.Errorf("删除远程目录文件失败：%w", err)
 			}
+		}
+
+		//检查是否还存在指定份数的备份
+		fileList, err = sftpClient.ReadDir(fsPath)
+		if err != nil {
+			return fmt.Errorf("读取远程目录失败：%w", err)
+		}
+		if len(fileList) < bf.saveDay {
+			return fmt.Errorf("%v备份不足%v份，请检查", v.Name(), bf.saveDay)
 		}
 	}
 
