@@ -5,7 +5,6 @@ import (
 	"db_backup_go/modules/send"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 
 	"github.com/pkg/sftp"
@@ -32,7 +31,7 @@ func NewBackupClear(saveDay int, sc common.ConnInfo) *backupFile {
 // 清理本地旧备份文件，传入本地路径，返回error
 func (bf *backupFile) ClearLocal(dict string) error {
 	//确认要保留的文件
-	fsDict, err := ioutil.ReadDir(dict)
+	fsDict, err := os.ReadDir(dict)
 	if err != nil {
 		return fmt.Errorf("读取目录失败：%w", err)
 	}
@@ -43,14 +42,14 @@ func (bf *backupFile) ClearLocal(dict string) error {
 		}
 	}
 
-	var backupPath []fs.FileInfo
+	var backupPath []fs.DirEntry
 	for _, v := range fsNameList {
-		backupPath, err = ioutil.ReadDir(dict + "/" + v)
+		backupPath, err = os.ReadDir(dict + "/" + v)
 		if err != nil {
 			return fmt.Errorf("读取目录下文件失败：%w", err)
 		}
 
-		cf := common.SortByTime(backupPath)
+		cf := common.SortByTimeFromDirEntry(backupPath)
 
 		delDay := bf.saveDay
 		if len(cf) < bf.saveDay {
@@ -68,7 +67,7 @@ func (bf *backupFile) ClearLocal(dict string) error {
 		}
 
 		//检查是否还存在指定份数的备份
-		fsDict, err := ioutil.ReadDir(dict)
+		fsDict, err := os.ReadDir(dict)
 		if err != nil {
 			return fmt.Errorf("读取目录失败：%w", err)
 		}
@@ -106,8 +105,7 @@ func (bf *backupFile) ClearRemote(dict string) error {
 		if err != nil {
 			return fmt.Errorf("读取远程目录失败：%w", err)
 		}
-
-		cf := common.SortByTime(fileList)
+		cf := common.SortByTimeFromFileInfo(fileList)
 
 		delDay := bf.saveDay
 		if len(cf) < bf.saveDay {
