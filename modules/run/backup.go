@@ -29,7 +29,7 @@ func NewBackuper(conf *config.ConfigFile) *backupInfo {
 	}
 }
 
-// 循环备份每个数据库，返回备份位置，和err
+// 循环备份每个数据库，返回库名或err
 func (b *backupInfo) Run(db *string) (string, error) {
 	b.date = time.Now().Format("2006-01-02")
 	fileName := *db + "_" + b.conf.DB_LABEL + "_" + b.date + ".sql.gz"
