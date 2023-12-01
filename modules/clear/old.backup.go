@@ -51,11 +51,13 @@ func (bf *backupFile) ClearLocal(dict string) error {
 		}
 
 		cf := common.SortByTime(backupPath)
-		if len(cf) <= bf.saveDay {
-			bf.saveDay = len(cf)
+
+		delDay := bf.saveDay
+		if len(cf) < bf.saveDay {
+			delDay = len(cf)
 		}
 
-		cf = cf[bf.saveDay:]
+		cf = cf[delDay:]
 
 		//删除旧备份
 		for _, oldfile := range cf {
@@ -88,26 +90,30 @@ func (bf *backupFile) ClearRemote(dict string) error {
 		return fmt.Errorf("读取远程目录失败：%w", err)
 	}
 
-	fsPath := dict + "/" + fsDict[0].Name()
+	for _, v := range fsDict {
+		fsPath := dict + "/" + v.Name()
 
-	fileList, err := sftpClient.ReadDir(fsPath)
-	if err != nil {
-		return fmt.Errorf("读取远程目录失败：%w", err)
-	}
-
-	cf := common.SortByTime(fileList)
-	if len(cf) < bf.saveDay {
-		bf.saveDay = len(cf)
-	}
-
-	cf = cf[bf.saveDay:]
-
-	//删除旧备份
-	cmd := send.NewSftpOperater(sftpClient)
-	for _, v := range cf {
-		err := cmd.Remove(dict + "/" + fsDict[0].Name() + v.Name())
+		fileList, err := sftpClient.ReadDir(fsPath)
 		if err != nil {
-			return fmt.Errorf("删除远程目录文件失败：%w", err)
+			return fmt.Errorf("读取远程目录失败：%w", err)
+		}
+
+		cf := common.SortByTime(fileList)
+
+		delDay := bf.saveDay
+		if len(cf) < bf.saveDay {
+			delDay = len(cf)
+		}
+
+		cf = cf[delDay:]
+
+		//删除旧备份
+		cmd := send.NewSftpOperater(sftpClient)
+		for _, v := range cf {
+			err := cmd.Remove(dict + "/" + fsDict[0].Name() + "/" + v.Name())
+			if err != nil {
+				return fmt.Errorf("删除远程目录文件失败：%w", err)
+			}
 		}
 	}
 
