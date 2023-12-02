@@ -2,6 +2,7 @@ package clear
 
 import (
 	"db_backup_go/common"
+	"db_backup_go/logging"
 	"db_backup_go/modules/send"
 	"fmt"
 	"io/fs"
@@ -49,7 +50,7 @@ func (bf *backupFile) ClearLocal(dict string) error {
 			return fmt.Errorf("读取目录下文件失败：%w", err)
 		}
 
-		cf := common.SortByTimeFromDirEntry(backupPath)
+		cf := common.SortByTime(backupPath)
 
 		delDay := bf.saveDay
 		if len(cf) < bf.saveDay {
@@ -72,7 +73,7 @@ func (bf *backupFile) ClearLocal(dict string) error {
 			return fmt.Errorf("读取目录失败：%w", err)
 		}
 		if len(fsDict) < bf.saveDay {
-			return fmt.Errorf("%v备份不足%v份，请检查", v, bf.saveDay)
+			logging.Logger.Printf("%v备份不足%v份，请检查", v, bf.saveDay)
 		}
 	}
 	return nil
@@ -105,7 +106,7 @@ func (bf *backupFile) ClearRemote(dict string) error {
 		if err != nil {
 			return fmt.Errorf("读取远程目录失败：%w", err)
 		}
-		cf := common.SortByTimeFromFileInfo(fileList)
+		cf := common.SortByTime(fileList)
 
 		delDay := bf.saveDay
 		if len(cf) < bf.saveDay {
@@ -129,7 +130,7 @@ func (bf *backupFile) ClearRemote(dict string) error {
 			return fmt.Errorf("读取远程目录失败：%w", err)
 		}
 		if len(fileList) < bf.saveDay {
-			return fmt.Errorf("%v备份不足%v份，请检查", v.Name(), bf.saveDay)
+			logging.Logger.Printf("%v备份不足%v份，请检查", v.Name(), bf.saveDay)
 		}
 	}
 
