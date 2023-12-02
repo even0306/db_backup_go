@@ -92,13 +92,14 @@ func (fi fileInfo) Controller() error {
 		logging.Logger.Println("本地备份清理完成")
 	}
 
-	logging.Logger.Println("开始清理远程备份")
-	err = rmFile.ClearRemote(conf.REMOTE_PATH)
-	if err != nil {
-		return err
-	} else {
-		logging.Logger.Println("远程备份清理完成")
+	if conf.REMOTE_BACKUP {
+		logging.Logger.Println("开始清理远程备份")
+		err = rmFile.ClearRemote(conf.REMOTE_PATH)
+		if err != nil {
+			return err
+		} else {
+			logging.Logger.Println("远程备份清理完成")
+		}
 	}
-
 	return nil
 }

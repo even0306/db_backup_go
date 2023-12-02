@@ -2,10 +2,8 @@ package common
 
 import (
 	"db_backup_go/logging"
-	"fmt"
 	"io/fs"
 	"os"
-	"reflect"
 	"sort"
 )
 
@@ -52,7 +50,6 @@ func SortByTimeFromFileInfo(fs []os.FileInfo) []os.FileInfo {
 func SortByTime[T []fs.DirEntry | []fs.FileInfo](fs T) T {
 	sort.SliceStable(fs, func(i, j int) bool {
 		flag := false
-		fmt.Printf("%v", reflect.TypeOf(fs))
 		switch fss := (interface{})(fs).(type) {
 		case []os.DirEntry:
 			fsi, err := fss[i].Info()
