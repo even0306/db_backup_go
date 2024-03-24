@@ -51,17 +51,19 @@ func (fi fileInfo) Controller() error {
 		return err
 	}
 
+	var wg sync.WaitGroup
+	limiter := make(chan bool, 4)
 	//开始循环备份每个数据库
 	var responseChannel = make(chan string)
 	go func(fl *[]string) {
 		for v := range responseChannel {
 			*fl = append(*fl, v)
 			logging.Logger.Printf("%v备份完成", v)
+			<-limiter
+			wg.Done()
 		}
 	}(&fi.fileNameList)
 
-	var wg sync.WaitGroup
-	limiter := make(chan bool, 4)
 	bk := run.NewBackuper(conf)
 	for _, v := range *preDBS {
 		logging.Logger.Printf("%v备份开始", v)
@@ -72,9 +74,7 @@ func (fi fileInfo) Controller() error {
 			if err != nil {
 				logging.Logger.Panicf("%v备份失败：%v", db, err)
 			}
-			defer wg.Done()
 			responseChannel <- fileName
-			<-limiter
 		}(v)
 	}
 	wg.Wait()
