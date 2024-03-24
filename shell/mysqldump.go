@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
+	"database/sql"
 	"db_backup_go/logging"
 	"fmt"
 	"io"
@@ -11,6 +12,8 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // 使用mysqldump备份mysql数据库，传入DBInfo结构体和要备份的数据库名指针，返回错误
@@ -171,16 +174,23 @@ func MysqlDumpAll(info *DBInfo, dst string, filename string, single int) error {
 
 // 使用mysql客户端查看mysql数据库现有的库，返回*[]string的数据库列表切片指针
 func GetMysqlDBList(info *DBInfo) (*[]string, error) {
-	cmd := exec.Command(info.ExecPath+"/mysql", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-Bse", "show databases")
-	var stdout bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	err := cmd.Run()
+	db, err := sql.Open("mysql", info.DBUser+":"+info.DBPassword+"@tcp("+info.DBHost+":"+fmt.Sprint(info.DBPort)+")/information_schema?charset=utf8")
 	if err != nil {
-		return nil, fmt.Errorf("数据库列表查询失败：%w:%v", err, stderr.String())
+		return nil, err
 	}
-	out := stdout.String()
-	list := strings.Split(out, "\n")
+	rows, err := db.Query("select schema_name from schemata")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	var list []string
+	for rows.Next() {
+		var col string
+		rows.Scan(&col)
+		list = append(list, col)
+	}
 	return &list, nil
 }
