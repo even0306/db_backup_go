@@ -11,6 +11,7 @@ require (
 
 require (
 	github.com/go-sql-driver/mysql v1.8.0
+	github.com/lib/pq v1.10.9
 	golang.org/x/crypto v0.21.0
 	golang.org/x/sys v0.18.0 // indirect
 )

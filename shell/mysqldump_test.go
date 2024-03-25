@@ -16,7 +16,12 @@ type info struct {
 }
 
 func TestGetMysqlDBList(t *testing.T) {
-	var info info
+	var info struct {
+		DBUser     string
+		DBHost     string
+		DBPassword string
+		DBPort     int
+	}
 	info.DBUser = "root"
 	info.DBHost = "127.0.0.1"
 	info.DBPassword = "123456"
