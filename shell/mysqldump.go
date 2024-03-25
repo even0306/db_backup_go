@@ -183,13 +183,13 @@ func GetMysqlDBList(info *DBInfo) (*[]string, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	if err != nil {
-		return nil, err
-	}
 	var list []string
 	for rows.Next() {
 		var col string
-		rows.Scan(&col)
+		err = rows.Scan(&col)
+		if err != nil {
+			return nil, err
+		}
 		list = append(list, col)
 	}
 	return &list, nil
