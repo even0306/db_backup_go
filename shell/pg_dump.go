@@ -187,6 +187,7 @@ func GetPostgresqlDBList(info *DBInfo) (*[]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer db.Close()
 	rows, err := db.Query("select datname from pg_catalog.pg_database")
 	if err != nil {
 		return nil, err

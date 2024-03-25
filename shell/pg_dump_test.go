@@ -25,6 +25,7 @@ func TestGetPostgresqlDBList(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	defer db.Close()
 	rows, err := db.Query("select datname from pg_catalog.pg_database")
 	if err != nil {
 		t.Error(err)

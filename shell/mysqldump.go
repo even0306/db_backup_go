@@ -178,6 +178,7 @@ func GetMysqlDBList(info *DBInfo) (*[]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer db.Close()
 	rows, err := db.Query("select schema_name from schemata")
 	if err != nil {
 		return nil, err

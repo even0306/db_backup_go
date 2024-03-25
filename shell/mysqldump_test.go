@@ -24,6 +24,7 @@ func TestGetMysqlDBList(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	defer db.Close()
 	rows, err := db.Query("select schema_name from schemata")
 	if err != nil {
 		t.Error(err)
