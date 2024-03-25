@@ -8,13 +8,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type info struct {
-	DBUser     string
-	DBPassword string
-	DBHost     string
-	DBPort     int
-}
-
 func TestGetMysqlDBList(t *testing.T) {
 	var info struct {
 		DBUser     string
