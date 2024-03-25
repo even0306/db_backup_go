@@ -50,13 +50,11 @@ func (fi fileInfo) Controller() error {
 	}
 
 	var wg sync.WaitGroup
-	limiter := make(chan bool, 4)
 	//开始循环备份每个数据库
 	var responseChannel = make(chan string)
 	go func() {
 		name := <-responseChannel
 		logging.Logger.Printf("%v备份完成", name)
-		<-limiter
 		wg.Done()
 	}()
 
@@ -64,7 +62,6 @@ func (fi fileInfo) Controller() error {
 	for _, v := range *preDBS {
 		logging.Logger.Printf("%v备份开始", v)
 		wg.Add(1)
-		limiter <- true
 		go func(db string) {
 			fileName, err := bk.Run(&db)
 			if err != nil {
