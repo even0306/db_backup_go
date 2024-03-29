@@ -68,12 +68,12 @@ func (bf *backupFile) ClearLocal(dict string) error {
 		}
 
 		//检查是否还存在指定份数的备份
-		fsDict, err := os.ReadDir(dict)
+		fsDict, err := os.ReadDir(dict + v)
 		if err != nil {
 			return fmt.Errorf("读取目录失败：%w", err)
 		}
 		if len(fsDict) < bf.saveDay {
-			logging.Logger.Printf("%v备份不足%v份，请检查", v, bf.saveDay)
+			logging.Logger.Printf("%v备份数：%v,不足%v份，请检查", v, len(fsDict), bf.saveDay)
 		}
 	}
 	return nil
@@ -130,7 +130,7 @@ func (bf *backupFile) ClearRemote(dict string) error {
 			return fmt.Errorf("读取远程目录失败：%w", err)
 		}
 		if len(fileList) < bf.saveDay {
-			logging.Logger.Printf("%v备份不足%v份，请检查", v.Name(), bf.saveDay)
+			logging.Logger.Printf("%v备份数：%v,不足%v份，请检查", v.Name(), len(fsDict), bf.saveDay)
 		}
 	}
 
