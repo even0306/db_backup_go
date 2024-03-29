@@ -53,9 +53,11 @@ func (fi fileInfo) Controller() error {
 	//开始循环备份每个数据库
 	var responseChannel = make(chan string)
 	go func() {
-		name := <-responseChannel
-		logging.Logger.Printf("%v备份完成", name)
-		wg.Done()
+		for {
+			name := <-responseChannel
+			logging.Logger.Printf("%v备份完成", name)
+			wg.Done()
+		}
 	}()
 
 	bk := run.NewBackuper(conf)
@@ -63,7 +65,7 @@ func (fi fileInfo) Controller() error {
 		logging.Logger.Printf("%v备份开始", v)
 		wg.Add(1)
 		go func(db string) {
-			fileName, err := bk.Run(&db)
+			fileName, err := bk.Run(db)
 			if err != nil {
 				logging.Logger.Panicf("%v备份失败：%v", db, err)
 			}

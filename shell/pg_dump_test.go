@@ -1,61 +1,88 @@
 package shell
 
 import (
-	"database/sql"
+	"bufio"
+	"bytes"
+	"compress/gzip"
+	"db_backup_go/logging"
 	"fmt"
+	"io"
+	"os"
+	"os/exec"
 	"testing"
 
 	_ "github.com/lib/pq"
 )
 
 // 使用postgresql客户端查看postgresql数据库现有的库，返回*[]string的数据库列表切片指针
-func TestGetPostgresqlDBList(t *testing.T) {
+func TestPostgresqlDumpAll(t *testing.T) {
 	var info struct {
 		DBUser     string
 		DBHost     string
 		DBPassword string
 		DBPort     int
+		ExecPath   string
 	}
 	info.DBUser = "postgres"
 	info.DBHost = "127.0.0.1"
 	info.DBPassword = "123456"
 	info.DBPort = 5432
+	info.ExecPath = "/usr/bin"
+	dst := "/app/mysql_backup/"
+	filename := "abc.sql.gz"
 
-	db, err := sql.Open("postgres", "host="+info.DBHost+" port="+fmt.Sprint(info.DBPort)+" user="+info.DBUser+" password="+info.DBPassword+" dbname=postgres"+" sslmode=disable")
+	cmd := exec.Command(info.ExecPath+"/pg_dumpall", "-h", info.DBHost, "-p", fmt.Sprint(info.DBPort), "-U", info.DBUser, "--inserts")
+	cmd.Env = []string{"PGPASSWORD=" + info.DBPassword}
+
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		t.Error(err)
-	}
-	defer db.Close()
-	rows, err := db.Query("select datname from pg_catalog.pg_database")
-	if err != nil {
-		t.Error(err)
+		logging.Logger.Panic(err)
 	}
 
-	var list []string
-	for rows.Next() {
-		var col string
-		err = rows.Scan(&col)
-		if err != nil {
-			t.Error(err)
+	err = cmd.Start()
+	if err != nil {
+		logging.Logger.Panic(err)
+	}
+
+	var gz *gzip.Writer
+	reader := bufio.NewReader(stdout)
+	isFirst := true
+	for {
+		line, err := reader.ReadString('\n')
+		if isFirst {
+			if line == "" {
+				cmd.Stderr = os.Stderr
+				t.Fatal(stderr.String())
+			} else {
+				err = os.MkdirAll(dst+"/all", 0777)
+				if err != nil {
+					t.Error(err)
+				}
+
+				f, err := os.Create(dst + "/all/" + filename)
+				if err != nil {
+					logging.Logger.Panic(err)
+				}
+				defer f.Close()
+
+				//创建一个gzip的流来接收管道中内容
+				gz = gzip.NewWriter(f)
+				defer gz.Close()
+			}
+			isFirst = false
 		}
-		list = append(list, col)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			logging.Logger.Panicf("读取流出现问题：%v，文件备份不完整。", err)
+		}
+		_, err = gz.Write([]byte(line))
+		if err != nil {
+			logging.Logger.Panic(err)
+		}
 	}
-
-	for _, v := range list {
-		fmt.Println(v)
-	}
-
-	// cmd := exec.Command(info.ExecPath+"/psql", fmt.Sprintf("host=%s port=%v user=%s password=%s", info.DBHost, info.DBPort, info.DBUser, info.DBPassword), "-c", "SELECT datname FROM pg_database;")
-	// var stdout bytes.Buffer
-	// var stderr bytes.Buffer
-	// cmd.Stdout = &stdout
-	// cmd.Stderr = &stderr
-	// err := cmd.Run()
-	// if err != nil {
-	// 	return nil, fmt.Errorf("数据库列表查询失败：%w:%v", err, stderr.String())
-	// }
-	// out := stdout.String()
-	// list := strings.Split(string(out), "\n")
-	// list = list[2 : len(list)-3]
-	// return &list, nil
 }
