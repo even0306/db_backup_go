@@ -69,7 +69,7 @@ jobs:
 
       - name: Get Version Number
         run: |
-          versionNum=$(./db_backup_go --version)
+          versionNum=$(cat main.go | grep "version :=" | awk -F "\"" '{print $2}')
           echo "VERSION=$versionNum" >> $GITHUB_ENV
           
       - name: Change the name
