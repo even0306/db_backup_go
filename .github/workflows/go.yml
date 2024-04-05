@@ -66,6 +66,11 @@ jobs:
       - name: Build db_backup_go
         run: |
           go build
+          
+      - name: Change the name
+        run: |
+          mv build_assets db_backup_go_${{ env.ASSET_NAME }}
+          
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         if: github.event_name == 'release'
