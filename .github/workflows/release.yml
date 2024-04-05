@@ -81,5 +81,5 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./db_backup_go_${{ env.ASSET_NAME }}*
-          tag: ${{ env.VERSION }}
+          release_name: "db_backup_go"
           file_glob: true
