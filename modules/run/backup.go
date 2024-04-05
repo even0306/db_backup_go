@@ -30,13 +30,13 @@ func NewBackuper(conf *config.ConfigFile) *backupInfo {
 }
 
 // 循环备份每个数据库，返回库名或err
-func (b *backupInfo) Run(db *string) (string, error) {
+func (b *backupInfo) Run(db string) (string, error) {
 	b.date = time.Now().Format("2006-01-02")
-	fileName := *db + "_" + b.conf.DB_LABEL + "_" + b.date + ".sql.gz"
+	fileName := db + "_" + b.conf.DB_LABEL + "_" + b.date + ".sql.gz"
 
 	//根据数据库类型选择相应的备份工具
 	dbi := shell.NewSelecter(b.conf.DATABASETYPE, b.conf.MYSQL_EXEC_PATH, b.conf.DB_Version, b.conf.DB_HOST, b.conf.DB_PORT, b.conf.DB_USER, b.conf.DB_PASSWORD)
-	err := shell.BackupSelecter(dbi, db, b.conf.BACKUP_SAVE_PATH, &fileName, b.conf.SINGLE_TRANSACTION)
+	err := shell.BackupSelecter(dbi, db, b.conf.BACKUP_SAVE_PATH, fileName, b.conf.SINGLE_TRANSACTION)
 	if err != nil {
 		return "", err
 	}
@@ -58,11 +58,11 @@ func (b *backupInfo) Run(db *string) (string, error) {
 		defer sftpClient.Close()
 
 		up := send.NewSftpOperater(sftpClient)
-		err = up.Upload(b.conf.BACKUP_SAVE_PATH+"/"+*db+"/"+fileName, b.conf.REMOTE_PATH+"/"+*db, fileName)
+		err = up.Upload(b.conf.BACKUP_SAVE_PATH+"/"+db+"/"+fileName, b.conf.REMOTE_PATH+"/"+db, fileName)
 		if err != nil {
 			return "", err
 		}
 	}
 
-	return *db, nil
+	return db, nil
 }

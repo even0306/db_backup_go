@@ -15,17 +15,15 @@ type Controller interface {
 }
 
 type fileInfo struct {
-	confFile     string
-	dbsFile      string
-	fileNameList []string
+	confFile string
+	dbsFile  string
 }
 
 // 初始化控制器，传入配置文件和数据库列表文件，返回 *fileInfo 结构体实例
 func NewController(conf string, dbs string) *fileInfo {
 	return &fileInfo{
-		confFile:     conf,
-		dbsFile:      dbs,
-		fileNameList: []string{},
+		confFile: conf,
+		dbsFile:  dbs,
 	}
 }
 
@@ -51,30 +49,27 @@ func (fi fileInfo) Controller() error {
 		return err
 	}
 
+	var wg sync.WaitGroup
 	//开始循环备份每个数据库
 	var responseChannel = make(chan string)
-	go func(fl *[]string) {
-		for v := range responseChannel {
-			*fl = append(*fl, v)
-			logging.Logger.Printf("%v备份完成", v)
+	go func() {
+		for {
+			name := <-responseChannel
+			logging.Logger.Printf("%v备份完成", name)
+			wg.Done()
 		}
-	}(&fi.fileNameList)
+	}()
 
-	var wg sync.WaitGroup
-	limiter := make(chan bool, 4)
 	bk := run.NewBackuper(conf)
 	for _, v := range *preDBS {
 		logging.Logger.Printf("%v备份开始", v)
 		wg.Add(1)
-		limiter <- true
 		go func(db string) {
-			fileName, err := bk.Run(&db)
+			fileName, err := bk.Run(db)
 			if err != nil {
 				logging.Logger.Panicf("%v备份失败：%v", db, err)
 			}
-			defer wg.Done()
 			responseChannel <- fileName
-			<-limiter
 		}(v)
 	}
 	wg.Wait()

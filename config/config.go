@@ -4,7 +4,7 @@ import (
 	"db_backup_go/logging"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"reflect"
 	"strings"
 )
@@ -68,7 +68,7 @@ func NewConfig(f string) *ConfigFile {
 // 读取配置文件，返回error错误信息
 func (c *ConfigFile) Read() error {
 	//读取配置文件
-	bf, err := ioutil.ReadFile(c.configFile)
+	bf, err := os.ReadFile(c.configFile)
 	if err != nil {
 		return fmt.Errorf("读取配置文件失败：%w", err)
 	}

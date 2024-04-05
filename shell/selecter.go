@@ -25,28 +25,28 @@ func NewSelecter(dbType string, p string, ver string, host string, port int, use
 }
 
 // 备份工具选择器，传入 *common.ConfigFile 和要备份的库名指针，返回备份出的字节流指针和报错信息
-func BackupSelecter(b *DBInfo, db *string, dst string, filename *string, single int) error {
+func BackupSelecter(b *DBInfo, db string, dst string, filename string, single int) error {
 	var err error
 	if b.dbType == "mysql" || b.dbType == "mariadb" {
-		if *db == "all" {
-			err = MysqlDumpAll(b, dst, *filename, single)
+		if db == "all" {
+			err = MysqlDumpAll(b, dst, filename, single)
 			if err != nil {
 				return err
 			}
 		} else {
-			err = MysqlDump(b, db, dst, *filename, single)
+			err = MysqlDump(b, db, dst, filename, single)
 			if err != nil {
 				return err
 			}
 		}
 	} else if b.dbType == "postgresql" {
-		if *db == "all" {
-			err = PostgresqlDumpAll(b, dst, *filename)
+		if db == "all" {
+			err = PostgresqlDumpAll(b, dst, filename)
 			if err != nil {
 				return err
 			}
 		} else {
-			err = PostgresqlDump(b, db, dst, *filename)
+			err = PostgresqlDump(b, db, dst, filename)
 			if err != nil {
 				return err
 			}
