@@ -66,6 +66,11 @@ jobs:
       - name: Build db_backup_go
         run: |
           go build
+
+      - name: Get Version Number
+        run: |
+          versionNum=$(./db_backup_go --version)
+          echo "VERSION=$versionNum" >> $GITHUB_ENV
           
       - name: Change the name
         run: |
@@ -76,5 +81,5 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./db_backup_go_${{ env.ASSET_NAME }}*
-          tag: ${{ github.ref }}
+          tag: ${{ env.VERSION }}
           file_glob: true
