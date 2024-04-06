@@ -1,0 +1,9 @@
+# Binaries for programs
+db_backup_go*
+
+# configure for programs
+config.json
+dbs.txt
+
+# log for programs
+server.log
