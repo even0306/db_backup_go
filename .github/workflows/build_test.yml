@@ -1,11 +1,21 @@
-name: Build and Release
+name: Build Test
 
 on:
-  pull_request:
+  push:
     branches:
       - main
     paths:
-      - "../version.go"
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/*.yml"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/*.yml"
 
 jobs:
   build:
@@ -58,16 +68,3 @@ jobs:
       - name: Build db_backup_go
         run: |
           go build
-          
-      - name: Change the name
-        run: |
-          mv db_backup_go db_backup_go_${{ env.ASSET_NAME }}
-          
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./db_backup_go_${{ env.ASSET_NAME }}*
-          tag: ${{ env.VERSION }}
-          release_name: "db_backup_go"
-          file_glob: true
