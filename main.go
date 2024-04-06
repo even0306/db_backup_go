@@ -16,11 +16,10 @@ var f embed.FS
 
 // 程序主入口
 func main() {
-	version := "1.2.1"
-	printVersion := flag.Bool("version", false, "[--version]")
+	isPrintVersion := flag.Bool("version", false, "[--version]")
 	flag.Parse()
-	if *printVersion {
-		println(version)
+	if *isPrintVersion {
+		GetVersion()
 		os.Exit(0)
 	}
 
