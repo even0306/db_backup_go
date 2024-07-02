@@ -1,6 +1,6 @@
 module db_backup_go
 
-go 1.22.1
+go 1.22.4
 
 require github.com/pkg/sftp v1.13.6
 

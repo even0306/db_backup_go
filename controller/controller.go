@@ -77,7 +77,7 @@ func (fi fileInfo) Controller() error {
 	//按天保留最新7份备份，删除之前的备份
 	logging.Logger.Printf("开始清理%v天前的备份", conf.SAVE_DAY)
 	sshSocket := common.NewSshSocket(conf.REMOTE_HOST, conf.REMOTE_PORT, conf.REMOTE_USER, conf.REMOTE_PASSWORD)
-	rmFile := clear.NewBackupClear(conf.SAVE_DAY, *sshSocket)
+	rmFile := clear.NewBackupClear(conf.SAVE_DAY, preDBS, *sshSocket)
 
 	logging.Logger.Println("开始清理本地备份")
 	err = rmFile.ClearLocal(conf.BACKUP_SAVE_PATH)
