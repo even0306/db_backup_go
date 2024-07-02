@@ -42,7 +42,7 @@ jobs:
       - name: Show workflow information 
         run: |
           export _NAME=$(jq ".[\"$GOOS-$GOARCH$GOARM$GOMIPS\"].friendlyName" -r < .github/build/friendly-filenames.json)
-          export VERSIONNUM=$(cat main.go | grep "version :=" | awk -F "\"" '{print $2}')
+          export VERSIONNUM=$(cat version.go | grep "x byte" | awk '{print $4}').$(cat version.go | grep "y byte" | awk '{print $4}').$(cat version.go | grep "z byte" | awk '{print $4}')
           echo "GOOS: $GOOS, GOARCH: $GOARCH, RELEASE_NAME: $_NAME"
           echo "ASSET_NAME=$_NAME" >> $GITHUB_ENV
           echo "VERSION=$VERSIONNUM" >> $GITHUB_ENV
