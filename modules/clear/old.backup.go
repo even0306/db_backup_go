@@ -19,13 +19,15 @@ type Clear interface {
 type backupFile struct {
 	common.ConnInfo
 	saveDay int
+	dbList  *[]string
 }
 
 // 初始化旧备份清理，传入保存的天数和远端服务器连接信息（ConnInfo结构体）
-func NewBackupClear(saveDay int, sc common.ConnInfo) *backupFile {
+func NewBackupClear(saveDay int, dbList *[]string, sc common.ConnInfo) *backupFile {
 	return &backupFile{
 		ConnInfo: sc,
 		saveDay:  saveDay,
+		dbList:   dbList,
 	}
 }
 
@@ -45,6 +47,19 @@ func (bf *backupFile) ClearLocal(dict string) error {
 
 	var backupPath []fs.DirEntry
 	for _, v := range fsNameList {
+		isContinue := false
+		for index, dbName := range *bf.dbList {
+			if index > len(*bf.dbList) || v == dbName {
+				isContinue = false
+				break
+			}
+			isContinue = true
+		}
+
+		if isContinue {
+			continue
+		}
+
 		backupPath, err = os.ReadDir(dict + "/" + v)
 		if err != nil {
 			return fmt.Errorf("读取目录下文件失败：%w", err)
@@ -100,6 +115,19 @@ func (bf *backupFile) ClearRemote(dict string) error {
 	}
 
 	for _, v := range fsDict {
+		isContinue := false
+		for index, dbName := range *bf.dbList {
+			if index > len(*bf.dbList) || v.Name() == dbName {
+				isContinue = false
+				break
+			}
+			isContinue = true
+		}
+
+		if isContinue {
+			continue
+		}
+
 		fsPath := dict + "/" + v.Name()
 
 		fileList, err := sftpClient.ReadDir(fsPath)
