@@ -1,0 +1,9 @@
+# 二进制文件
+db_backup_go*
+
+# 配置文件
+config.json
+dbs.txt
+
+# 日志文件
+server.log
