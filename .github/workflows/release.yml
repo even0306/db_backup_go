@@ -6,8 +6,12 @@ on:
       - main
     paths:
       - "../version.go"
+    type:
+      - closed
 
 jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
   build:
     permissions:
       contents: write
