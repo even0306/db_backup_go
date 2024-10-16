@@ -72,6 +72,25 @@ func (bf *backupFile) ClearLocal(dict string) error {
 			delDay = len(cf)
 		}
 
+		//排除大小为0的备份文件
+		emptyFile := 0
+		for index, f := range cf {
+			if index == delDay {
+				break
+			}
+
+			fbyte, err := os.ReadFile(dict + "/" + v + "/" + f.Name())
+			if err != nil {
+				return err
+			}
+
+			if len(fbyte) == 0 {
+				emptyFile += 1
+			}
+		}
+
+		delDay = delDay + emptyFile
+
 		cf = cf[delDay:]
 
 		//删除旧备份
@@ -87,8 +106,8 @@ func (bf *backupFile) ClearLocal(dict string) error {
 		if err != nil {
 			return fmt.Errorf("读取目录失败：%w", err)
 		}
-		if len(fsDict) < bf.saveDay {
-			logging.Logger.Printf("%v备份数：%v,不足%v份，请检查", v, len(fsDict), bf.saveDay)
+		if len(fsDict)-emptyFile < bf.saveDay {
+			logging.Logger.Printf("%v有效备份数：%v,不足%v份", v, len(fsDict)-emptyFile, bf.saveDay)
 		}
 	}
 	return nil
@@ -150,15 +169,6 @@ func (bf *backupFile) ClearRemote(dict string) error {
 			if err != nil {
 				return fmt.Errorf("删除远程目录文件失败：%w", err)
 			}
-		}
-
-		//检查是否还存在指定份数的备份
-		fileList, err = sftpClient.ReadDir(fsPath)
-		if err != nil {
-			return fmt.Errorf("读取远程目录失败：%w", err)
-		}
-		if len(fileList) < bf.saveDay {
-			logging.Logger.Printf("%v备份数：%v,不足%v份，请检查", v.Name(), len(fsDict), bf.saveDay)
 		}
 	}
 

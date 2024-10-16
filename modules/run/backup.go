@@ -30,7 +30,7 @@ func NewBackuper(conf *config.ConfigFile) *backupInfo {
 }
 
 // 循环备份每个数据库，返回库名或err
-func (b *backupInfo) Run(db string) (string, error) {
+func (b *backupInfo) Run(db string) (bool, error) {
 	b.date = time.Now().Format("2006-01-02")
 	fileName := db + "_" + b.conf.DB_LABEL + "_" + b.date + ".sql.gz"
 
@@ -38,7 +38,7 @@ func (b *backupInfo) Run(db string) (string, error) {
 	dbi := shell.NewSelecter(b.conf.DATABASETYPE, b.conf.MYSQL_EXEC_PATH, b.conf.DB_Version, b.conf.DB_HOST, b.conf.DB_PORT, b.conf.DB_USER, b.conf.DB_PASSWORD)
 	err := shell.BackupSelecter(dbi, db, b.conf.BACKUP_SAVE_PATH, fileName, b.conf.SINGLE_TRANSACTION)
 	if err != nil {
-		return "", err
+		return false, err
 	}
 
 	// 判断是否开启远程备份功能
@@ -47,22 +47,22 @@ func (b *backupInfo) Run(db string) (string, error) {
 		s := common.NewSshSocket(b.conf.REMOTE_HOST, b.conf.REMOTE_PORT, b.conf.REMOTE_USER, b.conf.REMOTE_PASSWORD)
 		sshClient, err := s.Connect()
 		if err != nil {
-			return "", err
+			return true, fmt.Errorf("创建ssh客户端失败：%w", err)
 		}
 		defer sshClient.Close()
 
 		sftpClient, err := sftp.NewClient(sshClient)
 		if err != nil {
-			return "", fmt.Errorf("创建sftp客户端失败：%w", err)
+			return true, fmt.Errorf("创建sftp客户端失败：%w", err)
 		}
 		defer sftpClient.Close()
 
 		up := send.NewSftpOperater(sftpClient)
 		err = up.Upload(b.conf.BACKUP_SAVE_PATH+"/"+db+"/"+fileName, b.conf.REMOTE_PATH+"/"+db, fileName)
 		if err != nil {
-			return "", err
+			return true, err
 		}
 	}
 
-	return db, nil
+	return false, nil
 }
