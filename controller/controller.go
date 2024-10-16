@@ -50,11 +50,14 @@ func (fi fileInfo) Controller() error {
 	}
 
 	var wg sync.WaitGroup
+	var sendRemoteFailed bool
 	//开始循环备份每个数据库
 	var responseChannel = make(chan string)
+	var sendRemoteFailedChannel = make(chan bool)
 	go func() {
 		for {
 			name := <-responseChannel
+			sendRemoteFailed = <-sendRemoteFailedChannel
 			logging.Logger.Printf("%v备份完成", name)
 			wg.Done()
 		}
@@ -65,11 +68,16 @@ func (fi fileInfo) Controller() error {
 		logging.Logger.Printf("%v备份开始", v)
 		wg.Add(1)
 		go func(db string) {
-			fileName, err := bk.Run(db)
+			sendRemoteFailed, err := bk.Run(db)
 			if err != nil {
-				logging.Logger.Panicf("%v备份失败：%v", db, err)
+				if sendRemoteFailed {
+					logging.Logger.Printf("%v发送到异机失败：%v", db, err)
+				} else {
+					logging.Logger.Panicf("%v备份失败：%v", db, err)
+				}
 			}
-			responseChannel <- fileName
+			responseChannel <- db
+			sendRemoteFailedChannel <- sendRemoteFailed
 		}(v)
 	}
 	wg.Wait()
@@ -87,7 +95,7 @@ func (fi fileInfo) Controller() error {
 		logging.Logger.Println("本地备份清理完成")
 	}
 
-	if conf.REMOTE_BACKUP {
+	if conf.REMOTE_BACKUP && !sendRemoteFailed {
 		logging.Logger.Println("开始清理远程备份")
 		err = rmFile.ClearRemote(conf.REMOTE_PATH)
 		if err != nil {
