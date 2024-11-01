@@ -22,15 +22,15 @@ func MysqlDump(info *DBInfo, db string, dst string, filename string, single int)
 	flag, _ := regexp.MatchString("8.0.*", info.DBVersion)
 	if flag {
 		if single == 1 {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--single-transaction", db)
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", db)
 		} else {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", db)
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--hex-blob", db)
 		}
 	} else {
 		if single == 1 {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", "--single-transaction", db)
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", db)
 		} else {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", db)
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", "--hex-blob", db)
 		}
 	}
 
@@ -108,15 +108,15 @@ func MysqlDumpAll(info *DBInfo, dst string, filename string, single int) error {
 	flag, _ := regexp.MatchString("8.0.*", info.DBVersion)
 	if flag {
 		if single == 1 {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--single-transaction", "--all-databases")
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", "--all-databases")
 		} else {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--all-databases")
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--hex-blob", "--all-databases")
 		}
 	} else {
 		if single == 1 {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", "--single-transaction", "--all-databases")
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", "--all-databases")
 		} else {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", "--all-databases")
+			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", "--hex-blob", "--all-databases")
 		}
 	}
 
