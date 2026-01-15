@@ -5,7 +5,7 @@ import "fmt"
 var (
 	x byte = 1
 	y byte = 3
-	z byte = 1
+	z byte = 2
 )
 
 func GetVersion() {
