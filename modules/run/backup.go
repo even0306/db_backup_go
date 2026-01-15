@@ -36,7 +36,7 @@ func (b *backupInfo) Run(db string) (bool, error) {
 
 	//根据数据库类型选择相应的备份工具
 	dbi := shell.NewSelecter(b.conf.DATABASETYPE, b.conf.MYSQL_EXEC_PATH, b.conf.DB_Version, b.conf.DB_HOST, b.conf.DB_PORT, b.conf.DB_USER, b.conf.DB_PASSWORD)
-	err := shell.BackupSelecter(dbi, db, b.conf.BACKUP_SAVE_PATH, fileName, b.conf.SINGLE_TRANSACTION)
+	err := shell.BackupSelecter(dbi, db, b.conf.BACKUP_SAVE_PATH+"/"+b.conf.DB_LABEL, fileName, b.conf.SINGLE_TRANSACTION)
 	if err != nil {
 		return false, err
 	}

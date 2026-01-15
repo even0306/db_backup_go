@@ -44,7 +44,10 @@ func main() {
 			panic(err)
 		}
 		defer rf.Close()
-		io.WriteString(rf, string(fv))
+		_, err = io.Writer.Write(rf, fv)
+		if err != nil {
+			panic(err)
+		}
 		log.Panic("未找到配置文件 config.json，已创建默认配置，请进行修改后重新执行。")
 	}
 	_, err = os.Stat(exPath + "/dbs.txt")
@@ -58,7 +61,10 @@ func main() {
 			panic(err)
 		}
 		defer rf.Close()
-		io.WriteString(rf, string(fv))
+		_, err = io.Writer.Write(rf, fv)
+		if err != nil {
+			panic(err)
+		}
 		log.Panic("未找到配置文件 dbs.txt，已创建默认配置，默认备份所有库。")
 	}
 

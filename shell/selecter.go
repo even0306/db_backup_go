@@ -27,7 +27,8 @@ func NewSelecter(dbType string, p string, ver string, host string, port int, use
 // 备份工具选择器，传入 *common.ConfigFile 和要备份的库名指针，返回备份出的字节流指针和报错信息
 func BackupSelecter(b *DBInfo, db string, dst string, filename string, single int) error {
 	var err error
-	if b.dbType == "mysql" || b.dbType == "mariadb" {
+	switch b.dbType {
+	case "mysql", "mariadb":
 		if db == "all" {
 			err = MysqlDumpAll(b, dst, filename, single)
 			if err != nil {
@@ -39,7 +40,7 @@ func BackupSelecter(b *DBInfo, db string, dst string, filename string, single in
 				return err
 			}
 		}
-	} else if b.dbType == "postgresql" {
+	case "postgresql":
 		if db == "all" {
 			err = PostgresqlDumpAll(b, dst, filename)
 			if err != nil {
@@ -51,26 +52,27 @@ func BackupSelecter(b *DBInfo, db string, dst string, filename string, single in
 				return err
 			}
 		}
-	} else {
+	default:
 		logging.Logger.Panic("未知的数据库类型，请重新检查 config.json 文件配置")
 	}
 	return nil
 }
 
 func DBListSelecter(b *DBInfo) (*[]string, error) {
-	if b.dbType == "mysql" || b.dbType == "mariadb" {
+	switch b.dbType {
+	case "mysql", "mariadb":
 		allDbs, err := GetMysqlDBList(b)
 		if err != nil {
 			return nil, err
 		}
 		return allDbs, nil
-	} else if b.dbType == "postgresql" {
+	case "postgresql":
 		allDbs, err := GetPostgresqlDBList(b)
 		if err != nil {
 			return nil, err
 		}
 		return allDbs, nil
-	} else {
+	default:
 		logging.Logger.Panic("未知的数据库类型，请重新检查 config.json 文件配置")
 	}
 	return nil, nil

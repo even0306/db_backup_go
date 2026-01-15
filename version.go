@@ -9,5 +9,5 @@ var (
 )
 
 func GetVersion() {
-	fmt.Printf("db_backup_go\nversion: %v.%v.%v", x, y, z)
+	fmt.Printf("db_backup_go\nversion: %v.%v.%v\n", x, y, z)
 }
