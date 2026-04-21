@@ -10,10 +10,6 @@ import (
 	"sync"
 )
 
-type Controller interface {
-	Controller() error
-}
-
 type fileInfo struct {
 	confFile string
 	dbsFile  string

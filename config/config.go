@@ -9,10 +9,6 @@ import (
 	"strings"
 )
 
-type ReadConfig interface {
-	Read() error
-}
-
 // 基础配置
 type ConfigFile struct {
 	configFile string

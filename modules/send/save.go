@@ -10,23 +10,18 @@ import (
 	"github.com/pkg/sftp"
 )
 
-type Operation interface {
-	Upload() error
-	Remove() error
-}
-
 type sftpInfo struct {
 	sftpClient *sftp.Client
 }
 
-//初始化sftp操作器，传入sftp客户端，返回sftp操作实例
+// 初始化sftp操作器，传入sftp客户端，返回sftp操作实例
 func NewSftpOperater(sftpClient *sftp.Client) *sftpInfo {
 	return &sftpInfo{
 		sftpClient: sftpClient,
 	}
 }
 
-//发送到远端，传入本地文件路径和目标文件夹路径，返回error
+// 发送到远端，传入本地文件路径和目标文件夹路径，返回error
 func (op *sftpInfo) Upload(src string, dst string, fn string) error {
 	srcValue, err := os.Open(src)
 	if err != nil {
@@ -65,7 +60,7 @@ func (op *sftpInfo) Upload(src string, dst string, fn string) error {
 	return nil
 }
 
-//删除文件，传入目标路径，返回error
+// 删除文件，传入目标路径，返回error
 func (op *sftpInfo) Remove(dst string) error {
 	err := op.sftpClient.Remove(path.Join(dst))
 	if err != nil {

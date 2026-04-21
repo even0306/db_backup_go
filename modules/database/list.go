@@ -7,10 +7,6 @@ import (
 	"strings"
 )
 
-type Comparison interface {
-	Comparison() (*[]string, error)
-}
-
 type comparisonInfo struct {
 	conf *config.ConfigFile
 	dbs  *[]string

@@ -11,11 +11,6 @@ import (
 	"github.com/pkg/sftp"
 )
 
-type Clear interface {
-	ClearLocal(dict string) error
-	ClearRemote(dict string) error
-}
-
 type backupFile struct {
 	common.ConnInfo
 	saveDay int

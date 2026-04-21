@@ -11,10 +11,6 @@ import (
 	"github.com/pkg/sftp"
 )
 
-type Backup interface {
-	Run(db *string) (string, error)
-}
-
 type backupInfo struct {
 	conf *config.ConfigFile
 

@@ -7,17 +7,13 @@ import (
 	"fmt"
 )
 
-type Compress interface {
-	CompressFile() (*bytes.Buffer, error)
-}
-
 type mygzip struct {
 	input    bytes.Buffer
 	data     *[]byte
 	filename *string
 }
 
-//初始化压缩保存功能，传入二进制文件流和文件名，返回*mygzip的结构体实例
+// 初始化压缩保存功能，传入二进制文件流和文件名，返回*mygzip的结构体实例
 func NewCompress(f *[]byte, filename *string) *mygzip {
 	return &mygzip{
 		data:     f,
@@ -25,7 +21,7 @@ func NewCompress(f *[]byte, filename *string) *mygzip {
 	}
 }
 
-//压缩字节流，传入 *bytes.Buffer，返回error
+// 压缩字节流，传入 *bytes.Buffer，返回error
 func (file *mygzip) CompressFile() (*bytes.Buffer, error) {
 	gwf := gzip.NewWriter(&file.input)
 	gwf.Name = *file.filename
