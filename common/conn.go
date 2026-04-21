@@ -16,7 +16,7 @@ type ConnInfo struct {
 }
 
 // 初始化连接器，传入远端服务器主机ip，端口，用户名，密码，返回*ConnInfo的结构体信息指针
-func NewSshSocket(host string, port int, user string, password string) *ConnInfo {
+func NewSSHSocketCreater(host string, port int, user string, password string) *ConnInfo {
 	return &ConnInfo{
 		Host:     host,
 		Port:     port,

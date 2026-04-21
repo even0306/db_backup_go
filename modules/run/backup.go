@@ -40,8 +40,8 @@ func (b *backupInfo) Run(db string) (bool, error) {
 	// 判断是否开启远程备份功能
 	if b.conf.REMOTE_BACKUP {
 		//发送备份文件到远端
-		s := common.NewSshSocket(b.conf.REMOTE_HOST, b.conf.REMOTE_PORT, b.conf.REMOTE_USER, b.conf.REMOTE_PASSWORD)
-		sshClient, err := s.Connect()
+		sshSocketCreaterObject := common.NewSSHSocketCreater(b.conf.REMOTE_HOST, b.conf.REMOTE_PORT, b.conf.REMOTE_USER, b.conf.REMOTE_PASSWORD)
+		sshClient, err := sshSocketCreaterObject.Connect()
 		if err != nil {
 			return true, fmt.Errorf("创建ssh客户端失败：%w", err)
 		}

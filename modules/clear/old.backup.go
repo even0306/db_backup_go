@@ -11,40 +11,40 @@ import (
 	"github.com/pkg/sftp"
 )
 
-type backupFile struct {
+type databaseBackuper struct {
 	common.ConnInfo
-	saveDay int
-	dbList  *[]string
+	saveDay               int
+	dbBackupListReference *[]string
 }
 
 // 初始化旧备份清理，传入保存的天数和远端服务器连接信息（ConnInfo结构体）
-func NewBackupClear(saveDay int, dbList *[]string, sc common.ConnInfo) *backupFile {
-	return &backupFile{
-		ConnInfo: sc,
-		saveDay:  saveDay,
-		dbList:   dbList,
+func NewBackupCleaner(saveDay int, dbBackupListReference *[]string, sshSocketCreaterObject common.ConnInfo) *databaseBackuper {
+	return &databaseBackuper{
+		ConnInfo:              sshSocketCreaterObject,
+		saveDay:               saveDay,
+		dbBackupListReference: dbBackupListReference,
 	}
 }
 
 // 清理本地旧备份文件，传入本地路径，返回error
-func (bf *backupFile) ClearLocal(dict string) error {
+func (bker *databaseBackuper) ClearLocal(backupSavePath string) error {
 	//确认要保留的文件
-	fsDict, err := os.ReadDir(dict)
+	backupSavePathObjects, err := os.ReadDir(backupSavePath)
 	if err != nil {
 		return fmt.Errorf("读取目录失败：%w", err)
 	}
-	var fsNameList []string
-	for _, fsName := range fsDict {
-		if fsName.IsDir() {
-			fsNameList = append(fsNameList, fsName.Name())
+	var backupSavePathFileNameList []string
+	for _, backupSavePathFile := range backupSavePathObjects {
+		if backupSavePathFile.IsDir() {
+			backupSavePathFileNameList = append(backupSavePathFileNameList, backupSavePathFile.Name())
 		}
 	}
 
-	var backupPath []fs.DirEntry
-	for _, v := range fsNameList {
+	var backupSavePathFileObject []fs.DirEntry
+	for _, backupSavePathFileName := range backupSavePathFileNameList {
 		isContinue := false
-		for index, dbName := range *bf.dbList {
-			if index > len(*bf.dbList) || v == dbName {
+		for i, dbBackupReference := range *bker.dbBackupListReference {
+			if i > len(*bker.dbBackupListReference) || backupSavePathFileName == dbBackupReference {
 				isContinue = false
 				break
 			}
@@ -55,15 +55,15 @@ func (bf *backupFile) ClearLocal(dict string) error {
 			continue
 		}
 
-		backupPath, err = os.ReadDir(dict + "/" + v)
+		backupSavePathFileObject, err = os.ReadDir(backupSavePath + "/" + backupSavePathFileName)
 		if err != nil {
 			return fmt.Errorf("读取目录下文件失败：%w", err)
 		}
 
-		cf := common.SortByTime(backupPath)
+		cf := common.SortByTime(backupSavePathFileObject)
 
-		delDay := bf.saveDay
-		if len(cf) < bf.saveDay {
+		delDay := bker.saveDay
+		if len(cf) < bker.saveDay {
 			delDay = len(cf)
 		}
 
@@ -74,7 +74,7 @@ func (bf *backupFile) ClearLocal(dict string) error {
 				break
 			}
 
-			fbyte, err := os.ReadFile(dict + "/" + v + "/" + f.Name())
+			fbyte, err := os.ReadFile(backupSavePath + "/" + backupSavePathFileName + "/" + f.Name())
 			if err != nil {
 				return err
 			}
@@ -90,28 +90,28 @@ func (bf *backupFile) ClearLocal(dict string) error {
 
 		//删除旧备份
 		for _, oldfile := range cf {
-			err := os.Remove(dict + "/" + v + "/" + oldfile.Name())
+			err := os.Remove(backupSavePath + "/" + backupSavePathFileName + "/" + oldfile.Name())
 			if err != nil {
 				return fmt.Errorf("旧备份文件删除失败：%w", err)
 			}
 		}
 
 		//检查是否还存在指定份数的备份
-		fsDict, err := os.ReadDir(dict + v)
+		fsDict, err := os.ReadDir(backupSavePath + "/" + backupSavePathFileName)
 		if err != nil {
 			return fmt.Errorf("读取目录失败：%w", err)
 		}
-		if len(fsDict)-emptyFile < bf.saveDay {
-			logging.Logger.Printf("%v有效备份数：%v,不足%v份", v, len(fsDict)-emptyFile, bf.saveDay)
+		if len(fsDict)-emptyFile < bker.saveDay {
+			logging.Logger.Printf("%v有效备份数：%v,不足%v份", backupSavePathFileName, len(fsDict)-emptyFile, bker.saveDay)
 		}
 	}
 	return nil
 }
 
 // 清理远端旧备份文件，传入远端机器路径，返回error
-func (bf *backupFile) ClearRemote(dict string) error {
+func (bker *databaseBackuper) ClearRemote(dict string) error {
 	//确认要保留的文件
-	sshClient, err := bf.Connect()
+	sshClient, err := bker.Connect()
 	if err != nil {
 		return err
 	}
@@ -130,8 +130,8 @@ func (bf *backupFile) ClearRemote(dict string) error {
 
 	for _, v := range fsDict {
 		isContinue := false
-		for index, dbName := range *bf.dbList {
-			if index > len(*bf.dbList) || v.Name() == dbName {
+		for index, dbName := range *bker.dbBackupListReference {
+			if index > len(*bker.dbBackupListReference) || v.Name() == dbName {
 				isContinue = false
 				break
 			}
@@ -150,8 +150,8 @@ func (bf *backupFile) ClearRemote(dict string) error {
 		}
 		cf := common.SortByTime(fileList)
 
-		delDay := bf.saveDay
-		if len(cf) < bf.saveDay {
+		delDay := bker.saveDay
+		if len(cf) < bker.saveDay {
 			delDay = len(cf)
 		}
 

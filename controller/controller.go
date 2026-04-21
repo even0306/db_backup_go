@@ -26,21 +26,21 @@ func NewController(conf string, dbs string) *fileInfo {
 // 备份主程序，返回 error
 func (fi fileInfo) Controller() error {
 	//获取配置文件
-	conf := config.NewConfig(fi.confFile)
-	err := conf.Read()
+	execConfig := config.NewConfig(fi.confFile)
+	err := execConfig.Read()
 	if err != nil {
 		return err
 	}
 	//获取要使用的数据库列表
-	dbs := config.NewDBList(fi.dbsFile)
-	dbsData, err := dbs.Read()
+	dbsTxt := config.NewDBList(fi.dbsFile)
+	dbsTxtData, err := dbsTxt.Read()
 	if err != nil {
 		return err
 	}
 
 	//对比出要备份的数据库列表
-	cp := database.NewCompartor(conf, dbsData)
-	preDBS, err := cp.Comparison()
+	compartorObject := database.NewCompartor(execConfig, dbsTxtData)
+	dbBackupListReference, err := compartorObject.Comparison()
 	if err != nil {
 		return err
 	}
@@ -59,41 +59,41 @@ func (fi fileInfo) Controller() error {
 		}
 	}()
 
-	bk := run.NewBackuper(conf)
-	for _, v := range *preDBS {
-		logging.Logger.Printf("%v备份开始", v)
+	backuperObject := run.NewBackuper(execConfig)
+	for _, dbBackupReference := range *dbBackupListReference {
+		logging.Logger.Printf("%v备份开始", dbBackupReference)
 		wg.Add(1)
-		go func(db string) {
-			sendRemoteFailed, err := bk.Run(db)
+		go func(dbBackupReference string) {
+			sendRemoteFailed, err := backuperObject.Run(dbBackupReference)
 			if err != nil {
 				if sendRemoteFailed {
-					logging.Logger.Printf("%v发送到异机失败：%v", db, err)
+					logging.Logger.Printf("%v发送到异机失败：%v", dbBackupReference, err)
 				} else {
-					logging.Logger.Panicf("%v备份失败：%v", db, err)
+					logging.Logger.Panicf("%v备份失败：%v", dbBackupReference, err)
 				}
 			}
-			responseChannel <- db
+			responseChannel <- dbBackupReference
 			sendRemoteFailedChannel <- sendRemoteFailed
-		}(v)
+		}(dbBackupReference)
 	}
 	wg.Wait()
 
 	//按天保留最新7份备份，删除之前的备份
-	logging.Logger.Printf("开始清理%v天前的备份", conf.SAVE_DAY)
-	sshSocket := common.NewSshSocket(conf.REMOTE_HOST, conf.REMOTE_PORT, conf.REMOTE_USER, conf.REMOTE_PASSWORD)
-	rmFile := clear.NewBackupClear(conf.SAVE_DAY, preDBS, *sshSocket)
+	logging.Logger.Printf("开始清理%v天前的备份", execConfig.SAVE_DAY)
+	sshSocketCreaterObject := common.NewSSHSocketCreater(execConfig.REMOTE_HOST, execConfig.REMOTE_PORT, execConfig.REMOTE_USER, execConfig.REMOTE_PASSWORD)
+	backupCleanerObject := clear.NewBackupCleaner(execConfig.SAVE_DAY, dbBackupListReference, *sshSocketCreaterObject)
 
 	logging.Logger.Println("开始清理本地备份")
-	err = rmFile.ClearLocal(conf.BACKUP_SAVE_PATH)
+	err = backupCleanerObject.ClearLocal(execConfig.BACKUP_SAVE_PATH)
 	if err != nil {
 		return err
 	} else {
 		logging.Logger.Println("本地备份清理完成")
 	}
 
-	if conf.REMOTE_BACKUP && !sendRemoteFailed {
+	if execConfig.REMOTE_BACKUP && !sendRemoteFailed {
 		logging.Logger.Println("开始清理远程备份")
-		err = rmFile.ClearRemote(conf.REMOTE_PATH)
+		err = backupCleanerObject.ClearRemote(execConfig.REMOTE_PATH)
 		if err != nil {
 			return err
 		} else {
