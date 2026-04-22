@@ -42,16 +42,16 @@ func (bker *databaseBackuper) ClearLocal(backupSavePath string) error {
 
 	var backupSavePathFileObject []fs.DirEntry
 	for _, backupSavePathFileName := range backupSavePathFileNameList {
-		isContinue := false
+		execStop := false
 		for i, dbBackupReference := range *bker.dbBackupListReference {
 			if i > len(*bker.dbBackupListReference) || backupSavePathFileName == dbBackupReference {
-				isContinue = false
+				execStop = false
 				break
 			}
-			isContinue = true
+			execStop = true
 		}
 
-		if isContinue {
+		if execStop {
 			continue
 		}
 
@@ -60,37 +60,41 @@ func (bker *databaseBackuper) ClearLocal(backupSavePath string) error {
 			return fmt.Errorf("读取目录下文件失败：%w", err)
 		}
 
-		cf := common.SortByTime(backupSavePathFileObject)
+		backupSavePathFileListDESC := common.SortByTime(backupSavePathFileObject)
 
-		delDay := bker.saveDay
-		if len(cf) < bker.saveDay {
-			delDay = len(cf)
+		deadDay := bker.saveDay
+		if len(backupSavePathFileListDESC) < bker.saveDay {
+			deadDay = len(backupSavePathFileListDESC)
 		}
 
-		//排除大小为0的备份文件
-		emptyFile := 0
-		for index, f := range cf {
-			if index == delDay {
+		//
+		emptyFileNum := 0
+		for index, backupSavePathFile := range backupSavePathFileListDESC {
+			if index == deadDay {
 				break
 			}
 
-			fbyte, err := os.ReadFile(backupSavePath + "/" + backupSavePathFileName + "/" + f.Name())
+			backupSavePathFileByte, err := os.ReadFile(backupSavePath + "/" + backupSavePathFileName + "/" + backupSavePathFile.Name())
 			if err != nil {
 				return err
 			}
 
-			if len(fbyte) == 0 {
-				emptyFile += 1
+			if len(backupSavePathFileByte) < 400 {
+				emptyFileNum += 1
 			}
 		}
 
-		delDay = delDay + emptyFile
+		deadDay = deadDay + emptyFileNum
 
-		cf = cf[delDay:]
+		if len(backupSavePathFileListDESC) < deadDay {
+			backupSavePathFileListDESC = nil
+		} else {
+			backupSavePathFileListDESC = backupSavePathFileListDESC[deadDay:]
+		}
 
 		//删除旧备份
-		for _, oldfile := range cf {
-			err := os.Remove(backupSavePath + "/" + backupSavePathFileName + "/" + oldfile.Name())
+		for _, deadFile := range backupSavePathFileListDESC {
+			err := os.Remove(backupSavePath + "/" + backupSavePathFileName + "/" + deadFile.Name())
 			if err != nil {
 				return fmt.Errorf("旧备份文件删除失败：%w", err)
 			}
@@ -101,8 +105,8 @@ func (bker *databaseBackuper) ClearLocal(backupSavePath string) error {
 		if err != nil {
 			return fmt.Errorf("读取目录失败：%w", err)
 		}
-		if len(fsDict)-emptyFile < bker.saveDay {
-			logging.Logger.Printf("%v有效备份数：%v,不足%v份", backupSavePathFileName, len(fsDict)-emptyFile, bker.saveDay)
+		if len(fsDict)-emptyFileNum < bker.saveDay {
+			logging.Logger.Printf("%v有效备份数：%v,不足%v份", backupSavePathFileName, len(fsDict)-emptyFileNum, bker.saveDay)
 		}
 	}
 	return nil

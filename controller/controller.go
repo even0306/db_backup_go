@@ -7,6 +7,7 @@ import (
 	"db_backup_go/modules/clear"
 	"db_backup_go/modules/database"
 	"db_backup_go/modules/run"
+	"fmt"
 	"sync"
 )
 
@@ -84,7 +85,7 @@ func (fi fileInfo) Controller() error {
 	backupCleanerObject := clear.NewBackupCleaner(execConfig.SAVE_DAY, dbBackupListReference, *sshSocketCreaterObject)
 
 	logging.Logger.Println("开始清理本地备份")
-	err = backupCleanerObject.ClearLocal(execConfig.BACKUP_SAVE_PATH)
+	err = backupCleanerObject.ClearLocal(fmt.Sprintf("%v/%v", execConfig.BACKUP_SAVE_PATH, execConfig.DB_LABEL))
 	if err != nil {
 		return err
 	} else {
