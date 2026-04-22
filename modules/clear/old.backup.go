@@ -101,19 +101,19 @@ func (bker *databaseBackuper) ClearLocal(backupSavePath string) error {
 		}
 
 		//检查是否还存在指定份数的备份
-		fsDict, err := os.ReadDir(backupSavePath + "/" + backupSavePathFileName)
+		backupSavePathFileNameList, err := os.ReadDir(backupSavePath + "/" + backupSavePathFileName)
 		if err != nil {
 			return fmt.Errorf("读取目录失败：%w", err)
 		}
-		if len(fsDict)-emptyFileNum < bker.saveDay {
-			logging.Logger.Printf("%v有效备份数：%v,不足%v份", backupSavePathFileName, len(fsDict)-emptyFileNum, bker.saveDay)
+		if len(backupSavePathFileNameList)-emptyFileNum < bker.saveDay {
+			logging.Logger.Printf("%v有效备份数：%v,不足%v份", backupSavePathFileName, len(backupSavePathFileNameList)-emptyFileNum, bker.saveDay)
 		}
 	}
 	return nil
 }
 
 // 清理远端旧备份文件，传入远端机器路径，返回error
-func (bker *databaseBackuper) ClearRemote(dict string) error {
+func (bker *databaseBackuper) ClearRemote(backupSavePath string) error {
 	//确认要保留的文件
 	sshClient, err := bker.Connect()
 	if err != nil {
@@ -127,44 +127,46 @@ func (bker *databaseBackuper) ClearRemote(dict string) error {
 	}
 	defer sftpClient.Close()
 
-	fsDict, err := sftpClient.ReadDir(dict)
+	backupSavePathFileList, err := sftpClient.ReadDir(backupSavePath)
 	if err != nil {
 		return fmt.Errorf("读取远程目录失败：%w", err)
 	}
 
-	for _, v := range fsDict {
-		isContinue := false
-		for index, dbName := range *bker.dbBackupListReference {
-			if index > len(*bker.dbBackupListReference) || v.Name() == dbName {
-				isContinue = false
+	for _, backupSavePathFile := range backupSavePathFileList {
+		execStop := false
+		for index, dbBackupReference := range *bker.dbBackupListReference {
+			if index > len(*bker.dbBackupListReference) || backupSavePathFile.Name() == dbBackupReference {
+				execStop = false
 				break
 			}
-			isContinue = true
+			execStop = true
 		}
 
-		if isContinue {
+		if execStop {
 			continue
 		}
 
-		fsPath := dict + "/" + v.Name()
-
-		fileList, err := sftpClient.ReadDir(fsPath)
+		filebackupSavePathFileList, err := sftpClient.ReadDir(backupSavePath)
 		if err != nil {
 			return fmt.Errorf("读取远程目录失败：%w", err)
 		}
-		cf := common.SortByTime(fileList)
+		filebackupSavePathFileListDESC := common.SortByTime(filebackupSavePathFileList)
 
-		delDay := bker.saveDay
-		if len(cf) < bker.saveDay {
-			delDay = len(cf)
+		deadDay := bker.saveDay
+		if len(filebackupSavePathFileListDESC) < bker.saveDay {
+			deadDay = len(filebackupSavePathFileListDESC)
 		}
 
-		cf = cf[delDay:]
+		if len(filebackupSavePathFileListDESC) < deadDay {
+			filebackupSavePathFileListDESC = nil
+		} else {
+			filebackupSavePathFileListDESC = filebackupSavePathFileListDESC[deadDay:]
+		}
 
 		//删除旧备份
 		cmd := send.NewSftpOperater(sftpClient)
-		for _, f := range cf {
-			err := cmd.Remove(fsPath + "/" + f.Name())
+		for _, filebackupSavePathFile := range filebackupSavePathFileListDESC {
+			err := cmd.Remove(fmt.Sprintf("%v/%v", backupSavePath, filebackupSavePathFile.Name()))
 			if err != nil {
 				return fmt.Errorf("删除远程目录文件失败：%w", err)
 			}
