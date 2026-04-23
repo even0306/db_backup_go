@@ -27,11 +27,11 @@ func NewBackupCleaner(saveDay int, dbBackupListReference *[]string, sshSocketCre
 }
 
 // 清理本地旧备份文件，传入本地路径，返回error
-func (bker *databaseBackuper) ClearLocal(backupSavePath string) error {
+func (bker *databaseBackuper) ClearLocal(backupSavePath string) ([]string, error) {
 	//确认要保留的文件
 	backupSavePathObjects, err := os.ReadDir(backupSavePath)
 	if err != nil {
-		return fmt.Errorf("读取目录失败：%w", err)
+		return nil, fmt.Errorf("读取目录失败：%w", err)
 	}
 	var backupSavePathFileNameList []string
 	for _, backupSavePathFile := range backupSavePathObjects {
@@ -40,6 +40,7 @@ func (bker *databaseBackuper) ClearLocal(backupSavePath string) error {
 		}
 	}
 
+	var deadFileNameList []string
 	var backupSavePathFileObject []fs.DirEntry
 	for _, backupSavePathFileName := range backupSavePathFileNameList {
 		execStop := false
@@ -57,7 +58,7 @@ func (bker *databaseBackuper) ClearLocal(backupSavePath string) error {
 
 		backupSavePathFileObject, err = os.ReadDir(backupSavePath + "/" + backupSavePathFileName)
 		if err != nil {
-			return fmt.Errorf("读取目录下文件失败：%w", err)
+			return nil, fmt.Errorf("读取目录下文件失败：%w", err)
 		}
 
 		backupSavePathFileListDESC := common.SortByTime(backupSavePathFileObject)
@@ -76,7 +77,7 @@ func (bker *databaseBackuper) ClearLocal(backupSavePath string) error {
 
 			backupSavePathFileByte, err := os.ReadFile(backupSavePath + "/" + backupSavePathFileName + "/" + backupSavePathFile.Name())
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			if len(backupSavePathFileByte) < 400 {
@@ -86,34 +87,38 @@ func (bker *databaseBackuper) ClearLocal(backupSavePath string) error {
 
 		deadDay = deadDay + emptyFileNum
 
+		var backupSavePathDeadFileList []fs.DirEntry
 		if len(backupSavePathFileListDESC) < deadDay {
 			backupSavePathFileListDESC = nil
 		} else {
-			backupSavePathFileListDESC = backupSavePathFileListDESC[deadDay:]
+			backupSavePathDeadFileList = backupSavePathFileListDESC[deadDay:]
 		}
 
 		//删除旧备份
-		for _, deadFile := range backupSavePathFileListDESC {
+		for _, deadFile := range backupSavePathDeadFileList {
+			deadFileNameList = append(deadFileNameList, deadFile.Name())
+			logging.Logger.Printf("删除本地文件: %v/%v/%v", backupSavePath, backupSavePathFileName, deadFile.Name())
 			err := os.Remove(backupSavePath + "/" + backupSavePathFileName + "/" + deadFile.Name())
 			if err != nil {
-				return fmt.Errorf("旧备份文件删除失败：%w", err)
+				return nil, fmt.Errorf("旧备份文件删除失败：%w", err)
 			}
 		}
 
 		//检查是否还存在指定份数的备份
 		backupSavePathFileNameList, err := os.ReadDir(backupSavePath + "/" + backupSavePathFileName)
 		if err != nil {
-			return fmt.Errorf("读取目录失败：%w", err)
+			return nil, fmt.Errorf("读取目录失败：%w", err)
 		}
 		if len(backupSavePathFileNameList)-emptyFileNum < bker.saveDay {
 			logging.Logger.Printf("%v有效备份数：%v,不足%v份", backupSavePathFileName, len(backupSavePathFileNameList)-emptyFileNum, bker.saveDay)
 		}
 	}
-	return nil
+
+	return deadFileNameList, nil
 }
 
-// 清理远端旧备份文件，传入远端机器路径，返回error
-func (bker *databaseBackuper) ClearRemote(backupSavePath string) error {
+// 清理远端旧备份文件，传入远端机器路径和要删除的文件名列表，返回error
+func (bker *databaseBackuper) ClearRemote(backupSavePath string, deadFileNameList []string) error {
 	//确认要保留的文件
 	sshClient, err := bker.Connect()
 	if err != nil {
@@ -127,49 +132,18 @@ func (bker *databaseBackuper) ClearRemote(backupSavePath string) error {
 	}
 	defer sftpClient.Close()
 
-	backupSavePathFileList, err := sftpClient.ReadDir(backupSavePath)
+	backupSavePathName, err := sftpClient.ReadDir(backupSavePath)
 	if err != nil {
-		return fmt.Errorf("读取远程目录失败：%w", err)
+		return err
 	}
 
-	for _, backupSavePathFile := range backupSavePathFileList {
-		execStop := false
-		for index, dbBackupReference := range *bker.dbBackupListReference {
-			if index > len(*bker.dbBackupListReference) || backupSavePathFile.Name() == dbBackupReference {
-				execStop = false
-				break
-			}
-			execStop = true
-		}
-
-		if execStop {
-			continue
-		}
-
-		filebackupSavePathFileList, err := sftpClient.ReadDir(backupSavePath)
+	//删除旧备份
+	cmd := send.NewSftpOperater(sftpClient)
+	for _, deadFileName := range deadFileNameList {
+		logging.Logger.Printf("删除远程文件: %v/%v/%v", backupSavePath, backupSavePathName, deadFileName)
+		err := cmd.Remove(fmt.Sprintf("%v/%v/%v", backupSavePath, backupSavePathName, deadFileName))
 		if err != nil {
-			return fmt.Errorf("读取远程目录失败：%w", err)
-		}
-		filebackupSavePathFileListDESC := common.SortByTime(filebackupSavePathFileList)
-
-		deadDay := bker.saveDay
-		if len(filebackupSavePathFileListDESC) < bker.saveDay {
-			deadDay = len(filebackupSavePathFileListDESC)
-		}
-
-		if len(filebackupSavePathFileListDESC) < deadDay {
-			filebackupSavePathFileListDESC = nil
-		} else {
-			filebackupSavePathFileListDESC = filebackupSavePathFileListDESC[deadDay:]
-		}
-
-		//删除旧备份
-		cmd := send.NewSftpOperater(sftpClient)
-		for _, filebackupSavePathFile := range filebackupSavePathFileListDESC {
-			err := cmd.Remove(fmt.Sprintf("%v/%v", backupSavePath, filebackupSavePathFile.Name()))
-			if err != nil {
-				return fmt.Errorf("删除远程目录文件失败：%w", err)
-			}
+			return fmt.Errorf("删除远程目录文件失败：%w", err)
 		}
 	}
 

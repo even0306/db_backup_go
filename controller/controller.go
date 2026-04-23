@@ -85,7 +85,7 @@ func (fi fileInfo) Controller() error {
 	backupCleanerObject := clear.NewBackupCleaner(execConfig.SAVE_DAY, dbBackupListReference, *sshSocketCreaterObject)
 
 	logging.Logger.Println("开始清理本地备份")
-	err = backupCleanerObject.ClearLocal(fmt.Sprintf("%v/%v", execConfig.BACKUP_SAVE_PATH, execConfig.DB_LABEL))
+	deadFileNameList, err := backupCleanerObject.ClearLocal(fmt.Sprintf("%v/%v", execConfig.BACKUP_SAVE_PATH, execConfig.DB_LABEL))
 	if err != nil {
 		return err
 	} else {
@@ -94,7 +94,7 @@ func (fi fileInfo) Controller() error {
 
 	if execConfig.REMOTE_BACKUP && !sendRemoteFailed {
 		logging.Logger.Println("开始清理远程备份")
-		err = backupCleanerObject.ClearRemote(fmt.Sprintf("%v/%v", execConfig.REMOTE_PATH, execConfig.DB_LABEL))
+		err = backupCleanerObject.ClearRemote(fmt.Sprintf("%v/%v", execConfig.REMOTE_PATH, execConfig.DB_LABEL), deadFileNameList)
 		if err != nil {
 			return err
 		} else {
