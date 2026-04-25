@@ -15,20 +15,20 @@ import (
 )
 
 // 使用mysqldump备份mysql数据库，传入DBInfo结构体和要备份的数据库名指针，返回错误
-func MysqlDump(info *DBInfo, savePath config.BackupPath, single int, dbBackupReference string) error {
+func MysqlDump(dbInfo *DBInfo, savePath config.BackupPath, single int, dbBackupReference string) error {
 	var cmd *exec.Cmd
-	flag, _ := regexp.MatchString("8.0.*", info.DBVersion)
+	flag, _ := regexp.MatchString("8.0.*", dbInfo.DBVersion)
 	if flag {
 		if single == 1 {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", dbBackupReference)
+			cmd = exec.Command(dbInfo.ExecPath+"/mysqldump", "-h"+dbInfo.DBHost, "-P"+fmt.Sprint(dbInfo.DBPort), "-u"+dbInfo.DBUser, "-p"+dbInfo.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", dbBackupReference)
 		} else {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--hex-blob", dbBackupReference)
+			cmd = exec.Command(dbInfo.ExecPath+"/mysqldump", "-h"+dbInfo.DBHost, "-P"+fmt.Sprint(dbInfo.DBPort), "-u"+dbInfo.DBUser, "-p"+dbInfo.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--hex-blob", dbBackupReference)
 		}
 	} else {
 		if single == 1 {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", dbBackupReference)
+			cmd = exec.Command(dbInfo.ExecPath+"/mysqldump", "-h"+dbInfo.DBHost, "-P"+fmt.Sprint(dbInfo.DBPort), "-u"+dbInfo.DBUser, "-p"+dbInfo.DBPassword, "-q", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", dbBackupReference)
 		} else {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", "--hex-blob", dbBackupReference)
+			cmd = exec.Command(dbInfo.ExecPath+"/mysqldump", "-h"+dbInfo.DBHost, "-P"+fmt.Sprint(dbInfo.DBPort), "-u"+dbInfo.DBUser, "-p"+dbInfo.DBPassword, "-q", "-E", "-R", "--triggers", "--hex-blob", dbBackupReference)
 		}
 	}
 
@@ -63,20 +63,20 @@ func MysqlDump(info *DBInfo, savePath config.BackupPath, single int, dbBackupRef
 }
 
 // 使用mysqldump备份mysql数据库，传入DBInfo结构体，返回错误
-func MysqlDumpAll(info *DBInfo, savePath config.BackupPath, single int) error {
+func MysqlDumpAll(dbInfo *DBInfo, savePath config.BackupPath, single int) error {
 	var cmd *exec.Cmd
-	flag, _ := regexp.MatchString("8.0.*", info.DBVersion)
+	flag, _ := regexp.MatchString("8.0.*", dbInfo.DBVersion)
 	if flag {
 		if single == 1 {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", "--all-databases")
+			cmd = exec.Command(dbInfo.ExecPath+"/mysqldump", "-h"+dbInfo.DBHost, "-P"+fmt.Sprint(dbInfo.DBPort), "-u"+dbInfo.DBUser, "-p"+dbInfo.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", "--all-databases")
 		} else {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--hex-blob", "--all-databases")
+			cmd = exec.Command(dbInfo.ExecPath+"/mysqldump", "-h"+dbInfo.DBHost, "-P"+fmt.Sprint(dbInfo.DBPort), "-u"+dbInfo.DBUser, "-p"+dbInfo.DBPassword, "-q", "--column-statistics=0", "-E", "-R", "--triggers", "--hex-blob", "--all-databases")
 		}
 	} else {
 		if single == 1 {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", "--all-databases")
+			cmd = exec.Command(dbInfo.ExecPath+"/mysqldump", "-h"+dbInfo.DBHost, "-P"+fmt.Sprint(dbInfo.DBPort), "-u"+dbInfo.DBUser, "-p"+dbInfo.DBPassword, "-q", "-E", "-R", "--triggers", "--single-transaction", "--hex-blob", "--all-databases")
 		} else {
-			cmd = exec.Command(info.ExecPath+"/mysqldump", "-h"+info.DBHost, "-P"+fmt.Sprint(info.DBPort), "-u"+info.DBUser, "-p"+info.DBPassword, "-q", "-E", "-R", "--triggers", "--hex-blob", "--all-databases")
+			cmd = exec.Command(dbInfo.ExecPath+"/mysqldump", "-h"+dbInfo.DBHost, "-P"+fmt.Sprint(dbInfo.DBPort), "-u"+dbInfo.DBUser, "-p"+dbInfo.DBPassword, "-q", "-E", "-R", "--triggers", "--hex-blob", "--all-databases")
 		}
 	}
 
@@ -110,8 +110,8 @@ func MysqlDumpAll(info *DBInfo, savePath config.BackupPath, single int) error {
 }
 
 // 使用mysql客户端查看mysql数据库现有的库，返回*[]string的数据库列表切片指针
-func GetMysqlDBList(info *DBInfo) (*[]string, error) {
-	db, err := sql.Open("mysql", info.DBUser+":"+info.DBPassword+"@tcp("+info.DBHost+":"+fmt.Sprint(info.DBPort)+")/information_schema?charset=utf8")
+func GetMysqlDBList(dbInfo *DBInfo) (*[]string, error) {
+	db, err := sql.Open("mysql", dbInfo.DBUser+":"+dbInfo.DBPassword+"@tcp("+dbInfo.DBHost+":"+fmt.Sprint(dbInfo.DBPort)+")/information_schema?charset=utf8")
 	if err != nil {
 		return nil, err
 	}

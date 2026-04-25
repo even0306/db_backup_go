@@ -12,9 +12,9 @@ import (
 )
 
 // 使用pg_dump备份postgresql数据库，传入DBInfo结构体和要备份的数据库名指针，返回错误
-func PostgresqlDump(info *DBInfo, savePath config.BackupPath, db string) error {
-	cmd := exec.Command(info.ExecPath+"/pg_dump", "-h", info.DBHost, "-p", fmt.Sprint(info.DBPort), "-U", info.DBUser, "-d", db, "--inserts")
-	cmd.Env = []string{"PGPASSWORD=" + info.DBPassword}
+func PostgresqlDump(dbInfo *DBInfo, savePath config.BackupPath, db string) error {
+	cmd := exec.Command(dbInfo.ExecPath+"/pg_dump", "-h", dbInfo.DBHost, "-p", fmt.Sprint(dbInfo.DBPort), "-U", dbInfo.DBUser, "-d", db, "--inserts")
+	cmd.Env = []string{"PGPASSWORD=" + dbInfo.DBPassword}
 
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
@@ -35,9 +35,9 @@ func PostgresqlDump(info *DBInfo, savePath config.BackupPath, db string) error {
 }
 
 // 使用pg_dump备份postgresql数据库，传入DBInfo结构体，返回错误
-func PostgresqlDumpAll(info *DBInfo, savePath config.BackupPath) error {
-	cmd := exec.Command(info.ExecPath+"/pg_dumpall", "-h", info.DBHost, "-p", fmt.Sprint(info.DBPort), "-U", info.DBUser, "--inserts")
-	cmd.Env = []string{"PGPASSWORD=" + info.DBPassword}
+func PostgresqlDumpAll(dbInfo *DBInfo, savePath config.BackupPath) error {
+	cmd := exec.Command(dbInfo.ExecPath+"/pg_dumpall", "-h", dbInfo.DBHost, "-p", fmt.Sprint(dbInfo.DBPort), "-U", dbInfo.DBUser, "--inserts")
+	cmd.Env = []string{"PGPASSWORD=" + dbInfo.DBPassword}
 
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
@@ -58,8 +58,8 @@ func PostgresqlDumpAll(info *DBInfo, savePath config.BackupPath) error {
 }
 
 // 使用postgresql客户端查看postgresql数据库现有的库，返回*[]string的数据库列表切片指针
-func GetPostgresqlDBList(info *DBInfo) (*[]string, error) {
-	db, err := sql.Open("postgres", "host="+info.DBHost+" port="+fmt.Sprint(info.DBPort)+" user="+info.DBUser+" password="+info.DBPassword+" dbname=postgres"+" sslmode=disable")
+func GetPostgresqlDBList(dbInfo *DBInfo) (*[]string, error) {
+	db, err := sql.Open("postgres", "host="+dbInfo.DBHost+" port="+fmt.Sprint(dbInfo.DBPort)+" user="+dbInfo.DBUser+" password="+dbInfo.DBPassword+" dbname=postgres"+" sslmode=disable")
 	if err != nil {
 		return nil, err
 	}
