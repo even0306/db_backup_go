@@ -4,6 +4,7 @@ import (
 	"db_backup_go/config"
 	"db_backup_go/conn"
 	"db_backup_go/logging"
+	"db_backup_go/shell"
 	"fmt"
 	"sync"
 
@@ -25,8 +26,17 @@ func Controller(conf string, dbs string) error {
 		return err
 	}
 
+	dbConnectInfo := &shell.DBInfo{
+		DBType:     execConfig.DATABASETYPE,
+		ExecPath:   execConfig.MYSQL_EXEC_PATH,
+		DBVersion:  execConfig.DB_Version,
+		DBHost:     execConfig.DB_HOST,
+		DBPort:     execConfig.DB_PORT,
+		DBUser:     execConfig.DB_USER,
+		DBPassword: execConfig.DB_PASSWORD,
+	}
 	//对比出要备份的数据库列表
-	dbBackupListReference, err := Comparison(execConfig, dbsTxtData)
+	dbBackupListReference, err := Comparison(execConfig, dbsTxtData, dbConnectInfo)
 	if err != nil {
 		return err
 	}
@@ -54,12 +64,12 @@ func Controller(conf string, dbs string) error {
 		}
 	}
 
-	backuperObject := NewBackuper(execConfig)
 	for _, dbBackupReference := range *dbBackupListReference {
 		logging.Logger.Printf("%v备份开始", dbBackupReference)
+		backuperObject := NewBackuper(execConfig, dbBackupReference)
 		wg.Add(1)
 		go func(dbBackupReference string) {
-			sendRemoteFailed, err := backuperObject.RunBackup(dbBackupReference, sshClient)
+			sendRemoteFailed, err := backuperObject.RunBackup(sshClient, dbConnectInfo, dbBackupReference)
 			if err != nil {
 				if sendRemoteFailed {
 					logging.Logger.Printf("%v发送到异机失败：%v", dbBackupReference, err)

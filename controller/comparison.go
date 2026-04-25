@@ -7,10 +7,9 @@ import (
 	"strings"
 )
 
-func Comparison(conf *config.ConfigFile, dbs *[]string) (*[]string, error) {
-	//获取所有数据库名
-	dbi := shell.NewSelecter(conf.DATABASETYPE, conf.MYSQL_EXEC_PATH, conf.DB_Version, conf.DB_HOST, conf.DB_PORT, conf.DB_USER, conf.DB_PASSWORD)
-	allDbs, err := shell.DBListSelecter(dbi)
+func Comparison(conf *config.ConfigFile, dbs *[]string, dbConnectInfo *shell.DBInfo) (*[]string, error) {
+	//获取所有数据库名单，传入连接数据库需要的参数，返回数据库名列表指针和报错信息
+	allDbs, err := shell.DBListSelecter(dbConnectInfo)
 	if err != nil {
 		return nil, err
 	}

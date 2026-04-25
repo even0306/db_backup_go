@@ -2,6 +2,7 @@ package controller
 
 import (
 	"db_backup_go/config"
+	"db_backup_go/conn"
 	"db_backup_go/shell"
 	"fmt"
 	"time"
@@ -10,28 +11,37 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type backupInfo struct {
-	conf *config.ConfigFile
+type BackupInfo struct {
+	Conf *config.ConfigFile
 
-	date string
+	Date string
+
+	MyBackupPath config.BackupPath
 }
 
 // 初始化备份工具，传入*common.ConfigFile类型的配置数据
-func NewBackuper(conf *config.ConfigFile) *backupInfo {
-	return &backupInfo{
-		conf: conf,
-		date: "",
+func NewBackuper(conf *config.ConfigFile, db string) *BackupInfo {
+	date := time.Now().Format("2006-01-02")
+	fileName := fmt.Sprintf("%v_%v_%v.sql.gz", db, conf.DB_LABEL, date)
+	return &BackupInfo{
+		Conf: conf,
+		Date: date,
+		MyBackupPath: config.BackupPath{
+			FileName:               fileName,
+			SavePath:               fmt.Sprintf("%v/%v", conf.BACKUP_SAVE_PATH, conf.DB_LABEL),
+			FullSavePath:           fmt.Sprintf("%v/%v/%v", conf.BACKUP_SAVE_PATH, conf.DB_LABEL, db),
+			FullSavePathFile:       fmt.Sprintf("%v/%v/%v/%v", conf.BACKUP_SAVE_PATH, conf.DB_LABEL, db, fileName),
+			RemoteSavePath:         fmt.Sprintf("%v/%v", conf.REMOTE_PATH, conf.DB_LABEL),
+			RemoteFullSavePath:     fmt.Sprintf("%v/%v/%v", conf.REMOTE_BACKUP, conf.DB_LABEL, db),
+			RemoteFullSavePathFile: fmt.Sprintf("%v/%v/%v/%v", conf.REMOTE_BACKUP, conf.DB_LABEL, db, fileName),
+		},
 	}
 }
 
-// 循环备份每个数据库，返回库名或err
-func (b *backupInfo) RunBackup(db string, sshClient *ssh.Client) (bool, error) {
-	b.date = time.Now().Format("2006-01-02")
-	fileName := db + "_" + b.conf.DB_LABEL + "_" + b.date + ".sql.gz"
-
-	//根据数据库类型选择相应的备份工具
-	dbi := shell.NewSelecter(b.conf.DATABASETYPE, b.conf.MYSQL_EXEC_PATH, b.conf.DB_Version, b.conf.DB_HOST, b.conf.DB_PORT, b.conf.DB_USER, b.conf.DB_PASSWORD)
-	err := shell.BackupSelecter(dbi, db, b.conf.BACKUP_SAVE_PATH+"/"+b.conf.DB_LABEL, fileName, b.conf.SINGLE_TRANSACTION)
+// 执行备份，传入ssh客户端，返回是否发送远程失败和error
+func (backupInfo *BackupInfo) RunBackup(sshClient *ssh.Client, dbConnectInfo *shell.DBInfo, dbBackupReference string) (bool, error) {
+	//根据数据库类型选择相应的备份工具,传入备份工具需要的参数，执行备份命令，返回备份结果和错误
+	err := shell.BackupSelecter(dbConnectInfo, dbBackupReference, backupInfo.MyBackupPath, backupInfo.Conf.SINGLE_TRANSACTION)
 	if err != nil {
 		return false, err
 	}
@@ -44,8 +54,8 @@ func (b *backupInfo) RunBackup(db string, sshClient *ssh.Client) (bool, error) {
 		}
 		defer sftpClient.Close()
 
-		up := NewSftpOperater(sftpClient)
-		err = up.Upload(fmt.Sprintf("%v/%v/%v/%v", b.conf.BACKUP_SAVE_PATH, b.conf.DB_LABEL, db, fileName), fmt.Sprintf("%v/%v/%v", b.conf.REMOTE_PATH, b.conf.DB_LABEL, db), fileName)
+		up := conn.NewSftpOperater(sftpClient)
+		err = up.Upload(backupInfo.MyBackupPath.FullSavePathFile, fmt.Sprintf("%v/%v/%v", backupInfo.Conf.REMOTE_PATH, backupInfo.Conf.DB_LABEL, dbBackupReference), backupInfo.MyBackupPath.FileName)
 		if err != nil {
 			return true, err
 		}

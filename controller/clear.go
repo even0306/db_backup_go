@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"db_backup_go/conn"
 	"db_backup_go/logging"
 	"db_backup_go/utils"
 	"fmt"
@@ -132,7 +133,7 @@ func (bker *databaseBackuperInfo) ClearRemote(backupSavePath string, deadFileNam
 	}
 
 	//删除旧备份
-	cmd := NewSftpOperater(sftpClient)
+	cmd := conn.NewSftpOperater(sftpClient)
 	for _, deadFileName := range deadFileNameList {
 		logging.Logger.Printf("删除远程文件: %v/%v/%v", backupSavePath, backupSavePathName, deadFileName)
 		err := cmd.Remove(fmt.Sprintf("%v/%v/%v", backupSavePath, backupSavePathName, deadFileName))
