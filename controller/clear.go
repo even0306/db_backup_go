@@ -1,33 +1,33 @@
-package clear
+package controller
 
 import (
-	"db_backup_go/common"
 	"db_backup_go/logging"
-	"db_backup_go/modules/send"
+	"db_backup_go/utils"
 	"fmt"
 	"io/fs"
 	"os"
 
 	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
 )
 
-type databaseBackuper struct {
-	common.ConnInfo
+type databaseBackuperInfo struct {
+	sshClient             *ssh.Client
 	saveDay               int
 	dbBackupListReference *[]string
 }
 
 // 初始化旧备份清理，传入保存的天数和远端服务器连接信息（ConnInfo结构体）
-func NewBackupCleaner(saveDay int, dbBackupListReference *[]string, sshSocketCreaterObject common.ConnInfo) *databaseBackuper {
-	return &databaseBackuper{
-		ConnInfo:              sshSocketCreaterObject,
+func NewBackupCleaner(saveDay int, dbBackupListReference *[]string, sshClient *ssh.Client) *databaseBackuperInfo {
+	return &databaseBackuperInfo{
+		sshClient:             sshClient,
 		saveDay:               saveDay,
 		dbBackupListReference: dbBackupListReference,
 	}
 }
 
 // 清理本地旧备份文件，传入本地路径，返回error
-func (bker *databaseBackuper) ClearLocal(backupSavePath string) ([]string, error) {
+func (bker *databaseBackuperInfo) ClearLocal(backupSavePath string) ([]string, error) {
 	//确认要保留的文件
 	backupSavePathObjects, err := os.ReadDir(backupSavePath)
 	if err != nil {
@@ -61,7 +61,7 @@ func (bker *databaseBackuper) ClearLocal(backupSavePath string) ([]string, error
 			return nil, fmt.Errorf("读取目录下文件失败：%w", err)
 		}
 
-		backupSavePathFileListDESC := common.SortByTime(backupSavePathFileObject)
+		backupSavePathFileListDESC := utils.SortByTime(backupSavePathFileObject)
 
 		deadDay := bker.saveDay
 		if len(backupSavePathFileListDESC) < bker.saveDay {
@@ -118,15 +118,9 @@ func (bker *databaseBackuper) ClearLocal(backupSavePath string) ([]string, error
 }
 
 // 清理远端旧备份文件，传入远端机器路径和要删除的文件名列表，返回error
-func (bker *databaseBackuper) ClearRemote(backupSavePath string, deadFileNameList []string) error {
+func (bker *databaseBackuperInfo) ClearRemote(backupSavePath string, deadFileNameList []string) error {
 	//确认要保留的文件
-	sshClient, err := bker.Connect()
-	if err != nil {
-		return err
-	}
-	defer sshClient.Close()
-
-	sftpClient, err := sftp.NewClient(sshClient)
+	sftpClient, err := sftp.NewClient(bker.sshClient)
 	if err != nil {
 		return err
 	}
@@ -138,7 +132,7 @@ func (bker *databaseBackuper) ClearRemote(backupSavePath string, deadFileNameLis
 	}
 
 	//删除旧备份
-	cmd := send.NewSftpOperater(sftpClient)
+	cmd := NewSftpOperater(sftpClient)
 	for _, deadFileName := range deadFileNameList {
 		logging.Logger.Printf("删除远程文件: %v/%v/%v", backupSavePath, backupSavePathName, deadFileName)
 		err := cmd.Remove(fmt.Sprintf("%v/%v/%v", backupSavePath, backupSavePathName, deadFileName))

@@ -1,4 +1,4 @@
-package common
+package utils
 
 import (
 	"db_backup_go/logging"

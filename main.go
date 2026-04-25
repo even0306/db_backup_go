@@ -68,8 +68,7 @@ func main() {
 		log.Panic("未找到配置文件 dbs.txt，已创建默认配置，默认备份所有库。")
 	}
 
-	c := controller.NewController(exPath+"/config.json", exPath+"/dbs.txt")
-	err = c.Controller()
+	err = controller.Controller(exPath+"/config.json", exPath+"/dbs.txt")
 	if err != nil {
 		logging.Logger.Panic(err)
 	}

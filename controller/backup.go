@@ -1,14 +1,13 @@
-package run
+package controller
 
 import (
-	"db_backup_go/common"
 	"db_backup_go/config"
-	"db_backup_go/modules/send"
 	"db_backup_go/shell"
 	"fmt"
 	"time"
 
 	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
 )
 
 type backupInfo struct {
@@ -26,7 +25,7 @@ func NewBackuper(conf *config.ConfigFile) *backupInfo {
 }
 
 // 循环备份每个数据库，返回库名或err
-func (b *backupInfo) Run(db string) (bool, error) {
+func (b *backupInfo) RunBackup(db string, sshClient *ssh.Client) (bool, error) {
 	b.date = time.Now().Format("2006-01-02")
 	fileName := db + "_" + b.conf.DB_LABEL + "_" + b.date + ".sql.gz"
 
@@ -38,22 +37,14 @@ func (b *backupInfo) Run(db string) (bool, error) {
 	}
 
 	// 判断是否开启远程备份功能
-	if b.conf.REMOTE_BACKUP {
-		//发送备份文件到远端
-		sshSocketCreaterObject := common.NewSSHSocketCreater(b.conf.REMOTE_HOST, b.conf.REMOTE_PORT, b.conf.REMOTE_USER, b.conf.REMOTE_PASSWORD)
-		sshClient, err := sshSocketCreaterObject.Connect()
-		if err != nil {
-			return true, fmt.Errorf("创建ssh客户端失败：%w", err)
-		}
-		defer sshClient.Close()
-
+	if sshClient != nil {
 		sftpClient, err := sftp.NewClient(sshClient)
 		if err != nil {
 			return true, fmt.Errorf("创建sftp客户端失败：%w", err)
 		}
 		defer sftpClient.Close()
 
-		up := send.NewSftpOperater(sftpClient)
+		up := NewSftpOperater(sftpClient)
 		err = up.Upload(fmt.Sprintf("%v/%v/%v/%v", b.conf.BACKUP_SAVE_PATH, b.conf.DB_LABEL, db, fileName), fmt.Sprintf("%v/%v/%v", b.conf.REMOTE_PATH, b.conf.DB_LABEL, db), fileName)
 		if err != nil {
 			return true, err

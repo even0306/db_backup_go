@@ -1,4 +1,4 @@
-package database
+package controller
 
 import (
 	"db_backup_go/config"
@@ -7,21 +7,9 @@ import (
 	"strings"
 )
 
-type comparisonInfo struct {
-	conf *config.ConfigFile
-	dbs  *[]string
-}
-
-func NewCompartor(conf *config.ConfigFile, dbs *[]string) *comparisonInfo {
-	return &comparisonInfo{
-		conf: conf,
-		dbs:  dbs,
-	}
-}
-
-func (c *comparisonInfo) Comparison() (*[]string, error) {
+func Comparison(conf *config.ConfigFile, dbs *[]string) (*[]string, error) {
 	//获取所有数据库名
-	dbi := shell.NewSelecter(c.conf.DATABASETYPE, c.conf.MYSQL_EXEC_PATH, c.conf.DB_Version, c.conf.DB_HOST, c.conf.DB_PORT, c.conf.DB_USER, c.conf.DB_PASSWORD)
+	dbi := shell.NewSelecter(conf.DATABASETYPE, conf.MYSQL_EXEC_PATH, conf.DB_Version, conf.DB_HOST, conf.DB_PORT, conf.DB_USER, conf.DB_PASSWORD)
 	allDbs, err := shell.DBListSelecter(dbi)
 	if err != nil {
 		return nil, err
@@ -31,7 +19,7 @@ func (c *comparisonInfo) Comparison() (*[]string, error) {
 	var preDBS []string
 	var errDBS []string = nil
 	var allFlag = false
-	for _, v := range *c.dbs {
+	for _, v := range *dbs {
 		var errFlag = true
 		for _, w := range *allDbs {
 			v = strings.TrimSpace(v)
@@ -42,7 +30,7 @@ func (c *comparisonInfo) Comparison() (*[]string, error) {
 				allFlag = true
 				errFlag = false
 				break
-			} else if filterMethod(v, w, c.conf.FILTER_METHOD) {
+			} else if filterMethod(v, w, conf.FILTER_METHOD) {
 				preDBS = append(preDBS, v)
 				errFlag = false
 				break

@@ -1,47 +1,32 @@
 package controller
 
 import (
-	"db_backup_go/common"
 	"db_backup_go/config"
+	"db_backup_go/conn"
 	"db_backup_go/logging"
-	"db_backup_go/modules/clear"
-	"db_backup_go/modules/database"
-	"db_backup_go/modules/run"
 	"fmt"
 	"sync"
+
+	"golang.org/x/crypto/ssh"
 )
 
-type fileInfo struct {
-	confFile string
-	dbsFile  string
-}
-
-// 初始化控制器，传入配置文件和数据库列表文件，返回 *fileInfo 结构体实例
-func NewController(conf string, dbs string) *fileInfo {
-	return &fileInfo{
-		confFile: conf,
-		dbsFile:  dbs,
-	}
-}
-
 // 备份主程序，返回 error
-func (fi fileInfo) Controller() error {
+func Controller(conf string, dbs string) error {
 	//获取配置文件
-	execConfig := config.NewConfig(fi.confFile)
+	execConfig := config.NewConfig(conf)
 	err := execConfig.Read()
 	if err != nil {
 		return err
 	}
 	//获取要使用的数据库列表
-	dbsTxt := config.NewDBList(fi.dbsFile)
+	dbsTxt := config.NewDBList(dbs)
 	dbsTxtData, err := dbsTxt.Read()
 	if err != nil {
 		return err
 	}
 
 	//对比出要备份的数据库列表
-	compartorObject := database.NewCompartor(execConfig, dbsTxtData)
-	dbBackupListReference, err := compartorObject.Comparison()
+	dbBackupListReference, err := Comparison(execConfig, dbsTxtData)
 	if err != nil {
 		return err
 	}
@@ -60,12 +45,21 @@ func (fi fileInfo) Controller() error {
 		}
 	}()
 
-	backuperObject := run.NewBackuper(execConfig)
+	var sshClient *ssh.Client
+	if execConfig.REMOTE_BACKUP {
+		logging.Logger.Println("远程备份功能已开启")
+		sshClient, err = conn.CreateSSHSocket(execConfig.REMOTE_HOST, execConfig.REMOTE_PORT, execConfig.REMOTE_USER, execConfig.REMOTE_PASSWORD)
+		if err != nil {
+			return err
+		}
+	}
+
+	backuperObject := NewBackuper(execConfig)
 	for _, dbBackupReference := range *dbBackupListReference {
 		logging.Logger.Printf("%v备份开始", dbBackupReference)
 		wg.Add(1)
 		go func(dbBackupReference string) {
-			sendRemoteFailed, err := backuperObject.Run(dbBackupReference)
+			sendRemoteFailed, err := backuperObject.RunBackup(dbBackupReference, sshClient)
 			if err != nil {
 				if sendRemoteFailed {
 					logging.Logger.Printf("%v发送到异机失败：%v", dbBackupReference, err)
@@ -81,8 +75,7 @@ func (fi fileInfo) Controller() error {
 
 	//按天保留最新7份备份，删除之前的备份
 	logging.Logger.Printf("开始清理%v天前的备份", execConfig.SAVE_DAY)
-	sshSocketCreaterObject := common.NewSSHSocketCreater(execConfig.REMOTE_HOST, execConfig.REMOTE_PORT, execConfig.REMOTE_USER, execConfig.REMOTE_PASSWORD)
-	backupCleanerObject := clear.NewBackupCleaner(execConfig.SAVE_DAY, dbBackupListReference, *sshSocketCreaterObject)
+	backupCleanerObject := NewBackupCleaner(execConfig.SAVE_DAY, dbBackupListReference, sshClient)
 
 	logging.Logger.Println("开始清理本地备份")
 	deadFileNameList, err := backupCleanerObject.ClearLocal(fmt.Sprintf("%v/%v", execConfig.BACKUP_SAVE_PATH, execConfig.DB_LABEL))
